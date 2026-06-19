@@ -1,0 +1,126 @@
+/* Minimal base. The engine writes all color + radius vars onto :root;
+   components below read them directly via var(--...). No globals.css needed. */
+
+:root {
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans, ui-monospace, monospace);
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 6rem;
+}
+
+.app header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+.app header h1 { margin: 0 0 .25rem; font-size: 1.25rem; }
+.app header p { margin: 0; color: var(--muted-foreground); font-size: .85rem; }
+
+.controls {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--background) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: end;
+}
+.controls label {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  font-size: .75rem;
+  color: var(--muted-foreground);
+}
+.controls select, .controls input[type="range"] { accent-color: var(--primary); }
+.controls select {
+  background: var(--input);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: .35rem .5rem;
+  font: inherit;
+}
+.controls .dial { min-width: 220px; }
+.controls .dial b { color: var(--foreground); }
+
+section { margin-bottom: 2.5rem; }
+section > h2 {
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted-foreground);
+  margin: 0 0 .75rem;
+  font-weight: 600;
+}
+
+.grid { display: grid; gap: .5rem; }
+.grid.cols-8 { grid-template-columns: repeat(8, 1fr); }
+.grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
+
+.swatch {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  font-size: .65rem;
+}
+.swatch .chip { height: 54px; }
+.swatch .meta {
+  padding: .25rem .4rem;
+  background: var(--card);
+  display: flex;
+  justify-content: space-between;
+  gap: .4rem;
+}
+.swatch .meta .var { color: var(--muted-foreground); }
+
+.concentric {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  padding: 1.5rem;
+}
+.concentric .layer {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: calc(max(0px, var(--radius-lg) - 1.5rem));
+  padding: 1.25rem;
+  margin-top: .75rem;
+}
+.concentric .layer .layer {
+  background: var(--accent);
+  border-radius: calc(max(0px, var(--radius-lg) - 1.5rem - 1.25rem));
+  padding: 1rem;
+}
+.concentric code {
+  font-size: .75rem;
+  color: var(--muted-foreground);
+}
+
+.badge {
+  display: inline-block;
+  padding: .15rem .5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-size: .7rem;
+  background: var(--secondary);
+}

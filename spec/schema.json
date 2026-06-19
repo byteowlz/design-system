@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/byteowlz/design-system/raw/main/spec/schema.json",
+  "title": "design-system scheme",
+  "description": "A filled palette for the base24 design-system standard. See spec/*.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "mode", "system", "slots"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable identifier, e.g. 'oqto-dark'.",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name shown in a scheme picker."
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["light", "dark"]
+    },
+    "system": {
+      "type": "string",
+      "enum": ["base16", "base24"],
+      "description": "Which slot set this scheme fills. base16 = base00..base0F; base24 = base00..base17. See spec/base16-policy.md."
+    },
+    "slots": {
+      "type": "object",
+      "description": "Slot -> CSS color string (hex, rgb(), oklch(), ...). Required keys depend on 'system'.",
+      "additionalProperties": { "type": "string" }
+    },
+    "overrides": {
+      "type": "object",
+      "description": "Exact values for specific semantic variables that win over the role->slot mapping (alpha colors, monochrome charts, etc.). Per-tool vocabulary.",
+      "additionalProperties": { "type": "string" }
+    },
+    "pureBase16": {
+      "type": "boolean",
+      "default": false,
+      "description": "Opt into duplication (alias missing slots) instead of derivation when system=base16. Escape hatch; see spec/base16-policy.md tier 3."
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "system": { "const": "base16" } } },
+      "then": {
+        "properties": {
+          "slots": {
+            "required": ["base00","base01","base02","base03","base04","base05","base06","base07","base08","base09","base0A","base0B","base0C","base0D","base0E","base0F"]
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "system": { "const": "base24" } } },
+      "then": {
+        "properties": {
+          "slots": {
+            "required": ["base00","base01","base02","base03","base04","base05","base06","base07","base08","base09","base0A","base0B","base0C","base0D","base0E","base0F","base10","base11","base12","base13","base14","base15","base16","base17"]
+          }
+        }
+      }
+    }
+  ]
+}

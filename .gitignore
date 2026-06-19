@@ -1,0 +1,12 @@
+# build artifacts
+**/dist/
+**/.tsbuildinfo
+
+# deps
+**/node_modules/
+
+# editor / os
+.DS_Store
+*.log
+.idea/
+.vscode/
