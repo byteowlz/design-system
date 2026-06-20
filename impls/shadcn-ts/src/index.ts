@@ -31,7 +31,7 @@ export type { AbstractRole } from "./roles.js";
 
 // Engine.
 export { normalizeScheme } from "./derive-base16.js";
-export { mapSchemeToTokens, MANAGED_SEMANTIC_VARS } from "./map-scheme-to-tokens.js";
+export { mapSchemeToTokens, MANAGED_SEMANTIC_VARS, SLOT_VARS } from "./map-scheme-to-tokens.js";
 export { applyScheme, clearScheme } from "./apply-scheme.js";
 export { DEFAULT_IDENTITY, identityVars } from "./identity-tokens.js";
 export {

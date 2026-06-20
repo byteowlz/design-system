@@ -75,12 +75,26 @@ function roleVarName(role: keyof typeof ROLE_FOR_SLOT): string {
 	return `--${role}`;
 }
 
+/** The 24 raw slot CSS var names (--base00..--base17), for debugging/showcases/direct slot access. */
+export const SLOT_VARS = [
+	"base00","base01","base02","base03","base04","base05","base06","base07",
+	"base08","base09","base0A","base0B","base0C","base0D","base0E","base0F",
+	"base10","base11","base12","base13","base14","base15","base16","base17",
+] as const as readonly string[];
+
 /**
  * Resolve a normalized scheme into the full set of emitted CSS variables.
- * Generic slot/role/surface mapping first; per-scheme overrides win last.
+ * Emits, in order: raw slots (--baseNN), abstract roles, shadcn surface; then
+ * per-scheme overrides win last.
  */
 export function mapSchemeToTokens(scheme: NormalizedScheme): SemanticTokenMap {
 	const tokens: SemanticTokenMap = {};
+
+	// Raw slots: always emit so showcases/debugging/components can read --baseNN directly.
+	for (const slot of SLOT_VARS) {
+		const v = scheme.slots[slot as Base24SlotKey];
+		if (v) tokens[`--${slot}`] = v;
+	}
 
 	// Tier 1: abstract roles (portable).
 	for (const [role, slot] of Object.entries(ROLE_FOR_SLOT)) {
@@ -102,8 +116,9 @@ export function mapSchemeToTokens(scheme: NormalizedScheme): SemanticTokenMap {
 	return tokens;
 }
 
-/** Every CSS variable this engine controls (for clearing/inspection). */
+/** Every CSS variable this engine controls (slots + semantic), for clearing/inspection. */
 export const MANAGED_SEMANTIC_VARS: readonly string[] = [
+	...SLOT_VARS.map((s) => `--${s}`),
 	...new Set([
 		...Object.keys(SHADCN_SURFACE),
 		...Object.values(ROLE_FOR_SLOT).map((s) => `--${s}`),

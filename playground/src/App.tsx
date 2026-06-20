@@ -11,15 +11,48 @@ const SLOT_KEYS = [
   "base10","base11","base12","base13","base14","base15","base16","base17",
 ] as const;
 
+// Complete shadcn concrete surface (every var the engine emits), each with the
+// slot it maps to — so duplicates (e.g. card & popover both -> base01) are shown
+// as intentional, and nothing (success/warning/info/border/...) is missing.
+const SHADCN_SURFACE: ReadonlyArray<{ name: string; slot: string }> = [
+  { name: "background", slot: "base00" },
+  { name: "foreground", slot: "base05" },
+  { name: "card", slot: "base01" },
+  { name: "card-foreground", slot: "base05" },
+  { name: "popover", slot: "base01" },
+  { name: "popover-foreground", slot: "base05" },
+  { name: "primary", slot: "base0B" },
+  { name: "primary-foreground", slot: "base00" },
+  { name: "secondary", slot: "base02" },
+  { name: "secondary-foreground", slot: "base06" },
+  { name: "muted", slot: "base02" },
+  { name: "muted-foreground", slot: "base04" },
+  { name: "accent", slot: "base02" },
+  { name: "accent-foreground", slot: "base06" },
+  { name: "destructive", slot: "base08" },
+  { name: "destructive-foreground", slot: "base06" },
+  { name: "success", slot: "base0B" },
+  { name: "success-foreground", slot: "base00" },
+  { name: "warning", slot: "base0A" },
+  { name: "warning-foreground", slot: "base00" },
+  { name: "info", slot: "base0D" },
+  { name: "info-foreground", slot: "base00" },
+  { name: "border", slot: "base01" },
+  { name: "input", slot: "base01" },
+  { name: "ring", slot: "base0B" },
+  { name: "sidebar", slot: "base11" },
+  { name: "sidebar-foreground", slot: "base06" },
+  { name: "chart-1", slot: "base0D" },
+  { name: "chart-2", slot: "base0B" },
+  { name: "chart-3", slot: "base0E" },
+  { name: "chart-4", slot: "base09" },
+  { name: "chart-5", slot: "base0C" },
+];
+
 // Abstract roles -> the CSS var the engine emits for each (portable surface).
 const ROLES = [
   "primary","secondary","muted","accent","success","warning","danger","info",
   "background","foreground","border","ring","card","popover","input",
-] as const;
-
-// shadcn concrete surface pairs (framework vocabulary, non-portable).
-const SHADCN_PAIRS = [
-  "card","popover","primary","secondary","muted","accent","destructive",
 ] as const;
 
 export default function App() {
@@ -82,8 +115,8 @@ export default function App() {
         <h2>24 slots (base24 palette)</h2>
         <div className="grid cols-8">
           {SLOT_KEYS.map((k) => {
-            const v = scheme.slots[k];
-            const derived = scheme.system === "base16" && !v;
+            const isBase24Only = k.startsWith("base1") && k !== "base0F" && k >= "base10";
+            const derived = scheme.system === "base16" && isBase24Only;
             return (
               <div className="swatch" key={k}>
                 <div className="chip" style={{ background: `var(--${k})` }} />
@@ -113,14 +146,19 @@ export default function App() {
       </section>
 
       <section>
-        <h2>shadcn concrete surface (framework vocabulary · non-portable)</h2>
+        <h2>shadcn concrete surface (framework vocabulary · non-portable · complete)</h2>
+        <p style={{ color: "var(--muted-foreground)", fontSize: ".75rem", margin: "0 0 .75rem" }}>
+          Each var shows the slot it maps to. Tokens that share a slot render the
+          same color on purpose (e.g. <code>card</code>/<code>popover</code> both = base01).
+        </p>
         <div className="grid cols-5">
-          {SHADCN_PAIRS.flatMap((name) => [name, `${name}-foreground`]).map((v) => (
-            <div className="swatch" key={v}>
-              <div className="chip" style={{ background: `var(--${v})` }}>
-                <span style={{ color: `var(--${v})`, filter: "invert(1) hue-rotate(180deg)" }} />
+          {SHADCN_SURFACE.map(({ name, slot }) => (
+            <div className="swatch" key={name}>
+              <div className="chip" style={{ background: `var(--${name})` }} />
+              <div className="meta">
+                <span>--{name}</span>
+                <span className="var">{slot}</span>
               </div>
-              <div className="meta"><span>--{v}</span></div>
             </div>
           ))}
         </div>
