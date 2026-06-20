@@ -49,11 +49,25 @@ const SHADCN_SURFACE: ReadonlyArray<{ name: string; slot: string }> = [
   { name: "chart-5", slot: "base0C" },
 ];
 
-// Abstract roles -> the CSS var the engine emits for each (portable surface).
-const ROLES = [
-  "primary","secondary","muted","accent","success","warning","danger","info",
-  "background","foreground","border","ring","card","popover","input",
-] as const;
+// Abstract roles grouped by ramp (F1: 2 foreground levels, 3 surface depths).
+const ROLE_GROUPS: ReadonlyArray<{ title: string; roles: ReadonlyArray<string> }> = [
+  {
+    title: "Foreground ramp (2 levels)",
+    roles: ["foreground", "muted-foreground"],
+  },
+  {
+    title: "Surface depth (3 levels)",
+    roles: ["background", "surface", "surface-sunken"],
+  },
+  {
+    title: "Action & status",
+    roles: ["primary", "secondary", "muted", "accent", "success", "warning", "danger", "info"],
+  },
+  {
+    title: "Structure",
+    roles: ["border", "ring", "input"],
+  },
+];
 
 export default function App() {
   const [schemeId, setSchemeId] = useState(builtInSchemeList[0]?.id ?? "");
@@ -131,18 +145,25 @@ export default function App() {
       </section>
 
       <section>
-        <h2>Abstract roles (portable · closed set of 15)</h2>
-        <div className="grid cols-5">
-          {ROLES.map((r) => (
-            <div className="swatch" key={r}>
-              <div className="chip" style={{ background: `var(--${r})` }} />
-              <div className="meta">
-                <span>{r}</span>
-                <span className="var">--{r}</span>
-              </div>
+        <h2>Abstract roles (portable · closed set of 16 · F1 minimal ramps)</h2>
+        {ROLE_GROUPS.map((group) => (
+          <div key={group.title} style={{ marginBottom: "1rem" }}>
+            <h3 style={{ fontSize: ".7rem", color: "var(--muted-foreground)", margin: "0 0 .4rem", textTransform: "uppercase", letterSpacing: ".06em" }}>
+              {group.title}
+            </h3>
+            <div className="grid cols-5">
+              {group.roles.map((r) => (
+                <div className="swatch" key={r}>
+                  <div className="chip" style={{ background: `var(--${r})` }} />
+                  <div className="meta">
+                    <span>{r}</span>
+                    <span className="var">--{r}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </section>
 
       <section>
