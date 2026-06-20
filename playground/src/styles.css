@@ -95,26 +95,24 @@ section > h2 {
 
 .concentric {
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: var(--card);
   padding: 1.5rem;
 }
 .concentric .layer {
   background: var(--muted);
   border: 1px solid var(--border);
-  border-radius: calc(max(0px, var(--radius-lg) - 1.5rem));
   padding: 1.25rem;
   margin-top: .75rem;
 }
-.concentric .layer .layer {
-  background: var(--accent);
-  border-radius: calc(max(0px, var(--radius-lg) - 1.5rem - 1.25rem));
-  padding: 1rem;
-}
+.concentric .layer.lg { border-radius: var(--radius-lg); background: var(--secondary); }
+.concentric .layer.md { border-radius: var(--radius-md); background: var(--accent); }
+.concentric .layer.sm { border-radius: var(--radius-sm); background: var(--primary); color: var(--primary-foreground); padding: 1rem; }
 .concentric code {
   font-size: .75rem;
   color: var(--muted-foreground);
 }
+.concentric .layer.sm code { color: var(--primary-foreground); opacity: .8; }
 
 .badge {
   display: inline-block;

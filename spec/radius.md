@@ -1,39 +1,46 @@
-# Spec: Radius (R1 — concentric nesting, single dial)
+# Spec: Radius — single dial, proportional scale, sharp-at-0
 
-Shape is governed by **one dial** and **one nesting rule**. The dial is per-tool (oqto = `0`, sharp); the rule is shared.
+Shape is governed by **one dial** and a **proportional categorical scale**. The dial is per-tool (oqto = `0`, sharp); the scale is shared.
 
 ## The dial
 
-A single root radius value. `radius = 0` means every element is sharp-cornered. Increasing it rounds corners across the whole UI.
+A single root radius value. `radius = 0` means every tier is `0` → dead sharp. Increasing it scales every tier up proportionally.
 
-## The rule (concentric nesting)
+## The scale (proportional)
 
-Each standard container component computes the radius it passes to its children:
+The categorical tiers are multiplicative functions of the dial so that **all tiers are `0` at `dial = 0`** and **all tiers are `> 0` at `dial > 0`**:
 
-```
-childRadius = max(0, myRadius − inset)
-```
+| tier | value |
+|------|-------|
+| `--radius-sm` | `calc(dial * 0.5)` |
+| `--radius-md` | `calc(dial * 0.75)` |
+| `--radius` / `--radius-lg` | `dial` |
+| `--radius-xl` | `calc(dial * 1.25)` |
 
-where `inset` is the padding (or border-box gap) between the container's edge and its content slot.
+Components pick a tier by depth/role: innermost controls use `sm`, cards use `lg`, full-bleed containers use `xl`. Because the scale is proportional, the innermost (`sm`) rounds as soon as the dial is non-zero — it is never starved to sharp by a large outer padding.
 
-Consequence: nested boxes share the same arc centers — the Apple-style concentric look. Large outer boxes naturally carry more radius; small inner ones less. "Based on size" is the *emergent feel* of this rule, not a separate calculation.
+## Why proportional, not additive concentric
 
-## Why not proportional-to-size (R2)
+Strict concentric geometry requires `outer − inner = inset` (the padding between boxes). Under that rule the inner radius is `max(0, outer − cumulative-inset)`, which decays to zero whenever the dial is smaller than the cumulative inset — so at normal dial values the innermost "never has a radius." That conflicts with the requirement that the innermost rounds when the dial is turned up.
 
-A size-proportional rule (radius scales with each element's own dimensions) would round differently-sized siblings differently and break the concentric arcs that are the explicit goal. R1 is chosen precisely to guarantee nesting.
+Proportional scaling satisfies both real requirements:
+- **sharp-at-0** (oqto's identity): every tier is a multiple of the dial, so all are `0` at `dial = 0`.
+- **innermost rounds**: `sm` is `0.5 × dial`, non-zero whenever the dial is non-zero.
 
-## Scope of the guarantee
+Harmonious proportional rounding is how real UIs (Apple, shadcn) nest in practice; strict shared-arc concentricity is a special case, not the default.
 
-Concentricity holds for elements rendered **inside standard container components** that implement the contract — i.e. they compute and apply `childRadius` to their content slot. Raw elements opt in by consuming the radius token. The mechanism is shared; the guarantee is scoped to compliant components.
+## Exact concentric (opt-in)
 
-## Degradation
+Components that explicitly want shared arc centers use the helpers:
+- `childRadius(parent, inset) = max(0, parent − inset)` — decay inward (clamps at sharp).
+- `parentRadius(child, inset) = child + inset` — grow outward (leaf-anchored; never clamps).
 
-At `dial = 0`, every `childRadius` is `0` regardless of nesting. A tool whose identity is sharp corners (oqto) sets the dial to `0` and pays nothing — no special-casing, no opt-outs. This is the hard requirement that made R1 the choice.
+These are the strict-concentric tools, available but not the default path.
 
 ## Implementation home
 
 The rule is target-agnostic (this file). Each framework impl implements it natively:
-- `impls/shadcn-ts/` — emits the radius dial as `--radius` (and the categorical `--radius-sm/md/lg/xl` derived from it); container components compute `childRadius`.
+- `impls/shadcn-ts/` — emits `--radius` (the dial) + the proportional `--radius-sm/md/lg/xl`; components pick tiers, or call the helpers for exact concentric.
 - `impls/iced-rs/`, `impls/gpui-rs/` — later, same rule.
 
-The playground ships a radius slider so the rule is verifiable live.
+The playground ships a radius slider so the scale is verifiable live.

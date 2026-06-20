@@ -36,6 +36,7 @@ export { applyScheme, clearScheme } from "./apply-scheme.js";
 export { DEFAULT_IDENTITY, identityVars } from "./identity-tokens.js";
 export {
 	childRadius,
+	parentRadius,
 	radiusScale,
 	radiusVars,
 	RADIUS_VARS,

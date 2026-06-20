@@ -1,35 +1,47 @@
 /**
- * R1 radius — concentric nesting, single dial. See spec/radius.md.
+ * Radius — single dial, sharp-at-0. See spec/radius.md.
  *
- * The dial is ONE value (a CSS length, e.g. "0.5rem" or "0"). Increasing it
- * rounds the whole UI; `0` makes everything sharp (oqto's identity). Each
- * standard container computes its children's radius as max(0, radius - inset),
- * so nested boxes share arc centers.
+ * The dial is ONE value (a CSS length, e.g. "0.5rem" or "0"). The categorical
+ * scale (sm/md/lg/xl) is PROPORTIONAL to the dial so that:
+ *   - dial = 0  -> every tier is 0 (dead sharp; oqto's identity)
+ *   - dial > 0  -> every tier > 0 (the innermost `sm` rounds too)
  *
- * Emission: sets `--radius` (the dial) plus the categorical `--radius-sm/md/
- * lg/xl` derived from it (shadcn convention). Components that nest call
- * `childRadius()` or consume the categorical vars.
+ * Why proportional, not additive concentric: strict concentric geometry
+ * (outer - inset) decays the inner radius to zero whenever the dial is smaller
+ * than the cumulative inset — so the innermost "never has a radius" at normal
+ * settings. Multiplicative scaling is what satisfies both sharp-at-0 AND
+ * inner-rounds. Harmonious proportional rounding is how real UIs (Apple,
+ * shadcn) actually nest in practice.
+ *
+ * Exact concentric (shared arc centers) is still available via childRadius() /
+ * parentRadius() for components that opt into strict per-pair nesting.
  *
  * @see ../../spec/radius.md
  */
 
-/** A CSS length string, e.g. "0.5rem" or "0px". */
+/** A CSS length string, e.g. "0.5rem" or "0". */
 export type Radius = string;
 
 /**
- * Compute a child's radius given the parent's dial value and the inset (padding
- * / border-box gap) between them. Returns a CSS expression using `max()` so it
- * clamps at 0 — guaranteeing `dial=0 -> everything sharp` with no special-casing.
- *
- *   childRadius("0.5rem", "4px") -> "max(0px, calc(0.5rem - 4px))"
+ * Exact concentric: a child's radius given the parent's and the inset between
+ * them. `max(0, ...)` clamps at sharp. Opt-in — decays to 0 when parent < inset.
  */
 export function childRadius(parentRadius: Radius, inset: Radius): Radius {
 	return `max(0px, calc(${parentRadius} - ${inset}))`;
 }
 
-/** Categorical tiers derived from the dial (shadcn convention). */
+/**
+ * Exact concentric (leaf-anchored): a parent's radius given its child's and the
+ * inset. parent = child + inset. Grows outward; never clamps. Use when you want
+ * nesting to grow from a known leaf radius rather than decay from the outer.
+ */
+export function parentRadius(childRadiusValue: Radius, inset: Radius): Radius {
+	return `calc(${childRadiusValue} + ${inset})`;
+}
+
+/** Categorical tiers, PROPORTIONAL to the dial. All -> 0 at dial = 0. */
 export interface RadiusScale {
-	/** The dial value itself. */
+	/** The dial value itself (== lg). */
 	radius: Radius;
 	sm: Radius;
 	md: Radius;
@@ -38,22 +50,27 @@ export interface RadiusScale {
 }
 
 /**
- * Build the categorical radius scale from a single dial value.
- * Tiers nest inward: xl (largest) down to sm (smallest), each `calc`-ing off
- * the dial so the concentric rule holds across the scale.
+ * Build the proportional categorical radius scale from a single dial.
+ * Tiers: sm = 0.5x, md = 0.75x, lg = 1x, xl = 1.25x. All scale to 0 at dial=0.
  */
 export function radiusScale(dial: Radius): RadiusScale {
 	return {
 		radius: dial,
-		sm: childRadius(dial, "4px"),
-		md: childRadius(dial, "2px"),
+		sm: `calc(${dial} * 0.5)`,
+		md: `calc(${dial} * 0.75)`,
 		lg: dial,
-		xl: childRadius(dial, "-2px"),
+		xl: `calc(${dial} * 1.25)`,
 	};
 }
 
 /** The CSS variable names this module manages. */
-export const RADIUS_VARS = ["--radius", "--radius-sm", "--radius-md", "--radius-lg", "--radius-xl"] as const;
+export const RADIUS_VARS = [
+	"--radius",
+	"--radius-sm",
+	"--radius-md",
+	"--radius-lg",
+	"--radius-xl",
+] as const;
 
 /**
  * Resolve the radius scale to CSS variable assignments for a given dial.

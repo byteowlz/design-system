@@ -61,11 +61,11 @@ export default function App() {
           </select>
         </label>
         <label className="dial">
-          Radius dial (R1)
+          Radius dial (proportional scale)
           <input
             type="range"
             min={0}
-            max={32}
+            max={48}
             value={radius}
             onChange={(e) => setRadius(Number(e.target.value))}
           />
@@ -127,19 +127,24 @@ export default function App() {
       </section>
 
       <section>
-        <h2>R1 — concentric nesting (driven by the radius dial)</h2>
+        <h2>Radius — proportional nesting (all tiers round when dial &gt; 0)</h2>
         <div className="concentric">
-          <code>card @ var(--radius-lg) · padding 1.5rem</code>
-          <div className="layer">
-            <code>layer 1 · childRadius = max(0, radius − 1.5rem)</code>
-            <div className="layer">
-              <code>layer 2 · childRadius = max(0, radius − 1.5rem − 1.25rem)</code>
+          <code>outer · var(--radius-xl)</code>
+          <div className="layer lg">
+            <code>layer 1 · var(--radius-lg)</code>
+            <div className="layer md">
+              <code>layer 2 · var(--radius-md)</code>
+              <div className="layer sm">
+                <code>innermost · var(--radius-sm)</code>
+              </div>
             </div>
           </div>
         </div>
         <p style={{ color: "var(--muted-foreground)", fontSize: ".8rem", marginTop: ".75rem" }}>
-          Move the radius slider — nested boxes stay concentric. At 0px every
-          layer is sharp.
+          Move the slider — every tier scales proportionally, so the innermost
+          rounds too. At 0px everything is dead sharp. (Exact shared-arc
+          concentricity is available via <code>childRadius()</code> for components
+          that want it.)
         </p>
       </section>
     </div>
