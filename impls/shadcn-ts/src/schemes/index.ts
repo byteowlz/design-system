@@ -13,9 +13,11 @@ import emberJson from "./ember.json" with { type: "json" };
 import nordBase16Json from "./nord-base16.json" with { type: "json" };
 import oqtoDarkJson from "./oqto-dark.json" with { type: "json" };
 import oqtoLightJson from "./oqto-light.json" with { type: "json" };
+import oqtoLightV2Json from "./oqto-light-v2.json" with { type: "json" };
 
 export const oqtoDark = oqtoDarkJson as Scheme;
 export const oqtoLight = oqtoLightJson as Scheme;
+export const oqtoLightV2 = oqtoLightV2Json as Scheme;
 export const ember = emberJson as Scheme;
 export const nordBase16 = nordBase16Json as Scheme;
 
@@ -23,6 +25,7 @@ export const nordBase16 = nordBase16Json as Scheme;
 export const builtInSchemes: Readonly<Record<string, Scheme>> = {
 	[oqtoDark.id]: oqtoDark,
 	[oqtoLight.id]: oqtoLight,
+	[oqtoLightV2.id]: oqtoLightV2,
 	[ember.id]: ember,
 	[nordBase16.id]: nordBase16,
 };
@@ -31,6 +34,7 @@ export const builtInSchemes: Readonly<Record<string, Scheme>> = {
 export const builtInSchemeList: ReadonlyArray<Scheme> = [
 	oqtoDark,
 	oqtoLight,
+	oqtoLightV2,
 	ember,
 	nordBase16,
 ];
