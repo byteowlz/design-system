@@ -56,7 +56,6 @@ export {
 	defaultSchemeForMode,
 	oqtoDark,
 	oqtoLight,
-	oqtoLightV2,
 	ember,
 	nordBase16,
 } from "./schemes/index.js";
