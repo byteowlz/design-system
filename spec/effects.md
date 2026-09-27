@@ -36,6 +36,16 @@ Effects belong to **Identity** — exactly like the radius dial. The radius *mec
 2. **Effects are never scheme-driven portably.** A scheme cannot reskin "the shadow" the way it reskins `--primary`. Per-tool effects may read scheme colors; they are not reskinned by schemes. If a tool wants scheme-conditional effects (e.g. a "neumorphic" scheme), that's a per-tool `overrides` extension, never a portable role.
 3. **The door is symmetric with radius.** If a future tool wants a shadow dial, the pattern is proven (radius): add an `effects` module to the impl that defaults to off and scales a ramp. That is a *new shared mechanism* (like radius), not a new portable role. oqto would set it to off and notice nothing.
 
+## Update: the shared mechanism now exists (ADR-0004)
+
+The door above has been opened for structure: [ADR-0004](../docs/adr/0004-look-identity-recipes.md) and [`look.md`](look.md) define a **Look**, whose semantic recipes (v1: `control`) share one mechanism across surfaces. That mechanism covers:
+
+- elevation `flat | hairline | raised(sm|md)` over a structured shadow ramp;
+- density tables;
+- focus `ring | outline | tint | indicator`.
+
+Everything above still holds: effect *values* stay per-Look Identity, no portable colour roles are added, and a Look without raised elevation declares no shadows. Web-only effects (backdrop blur, glass) remain outside the cross-surface contract.
+
 ## What the standard will never ship
 
 A "complete design system" in the shadcn/Tailwind sense. It ships the portable contract (color + radius mechanism); each tool brings its own effects/motion/spacing decisions. That is the cost of "mechanism not look." If effects ever become portable enough to standardize (e.g. every byteowlz tool agrees on a 3-level elevation ramp), that promotion is an ADR-worthy decision, not a default.

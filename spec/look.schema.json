@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/byteowlz/design-system/raw/main/spec/look.schema.json",
+  "title": "design-system Look (v1: control recipe)",
+  "description": "A versioned Look above schemes: a pinned dark/light scheme pair + Identity + semantic component recipes. Closed enums and small integers only, never raw CSS. See spec/look.md and docs/adr/0004-look-identity-recipes.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "version", "schemes", "identity", "recipes"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "name": { "type": "string", "minLength": 1 },
+    "version": { "type": "integer", "minimum": 1 },
+    "schemes": {
+      "description": "The Look pins exactly one dark and one light scheme (by scheme id).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dark", "light"],
+      "properties": {
+        "dark": { "$ref": "#/$defs/schemeId" },
+        "light": { "$ref": "#/$defs/schemeId" }
+      }
+    },
+    "identity": { "$ref": "#/$defs/identity" },
+    "recipes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["control"],
+      "properties": {
+        "control": { "$ref": "#/$defs/control" }
+      }
+    }
+  },
+  "$defs": {
+    "schemeId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "role": {
+      "description": "One of the 16 closed roles (spec/roles.md). No new portable roles.",
+      "enum": [
+        "foreground", "muted-foreground", "background", "surface", "surface-sunken",
+        "primary", "secondary", "muted", "accent", "success", "warning", "danger", "info",
+        "border", "ring", "input"
+      ]
+    },
+    "px": {
+      "description": "A length in px: an integer or an exact binary fraction (quarter px).",
+      "type": "number",
+      "multipleOf": 0.25
+    },
+    "font": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stack", "native"],
+      "properties": {
+        "stack": {
+          "description": "Web fallback stack, most preferred first; ends in a generic family.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "native": {
+          "description": "The single family name a native surface (GPUI) requests.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fonts", "radius"],
+      "properties": {
+        "fonts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sans", "mono"],
+          "properties": {
+            "sans": { "$ref": "#/$defs/font" },
+            "mono": { "$ref": "#/$defs/font" },
+            "display": { "$ref": "#/$defs/font" }
+          }
+        },
+        "radius": {
+          "description": "The radius dial in px (spec/radius.md). 0 = sharp.",
+          "allOf": [{ "$ref": "#/$defs/px" }],
+          "minimum": 0,
+          "maximum": 32
+        },
+        "shadows": {
+          "description": "The elevation ramp per mode. Required when any recipe uses raised elevation.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["dark", "light"],
+          "properties": {
+            "dark": { "$ref": "#/$defs/ramp" },
+            "light": { "$ref": "#/$defs/ramp" }
+          }
+        }
+      }
+    },
+    "ramp": {
+      "description": "sm = resting raised, md = raised(md) and hover of raised(sm), lg = hover of raised(md).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sm", "md", "lg"],
+      "properties": {
+        "sm": { "$ref": "#/$defs/layers" },
+        "md": { "$ref": "#/$defs/layers" },
+        "lg": { "$ref": "#/$defs/layers" }
+      }
+    },
+    "layers": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "items": { "$ref": "#/$defs/layer" }
+    },
+    "layer": {
+      "description": "One structured shadow layer. Integers only; alpha is a percentage of the role colour.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "blur", "spread", "alpha", "color"],
+      "properties": {
+        "x": { "type": "integer", "minimum": -16, "maximum": 16 },
+        "y": { "type": "integer", "minimum": -16, "maximum": 64 },
+        "blur": { "type": "integer", "minimum": 0, "maximum": 128 },
+        "spread": { "type": "integer", "minimum": -32, "maximum": 32 },
+        "alpha": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "color": { "$ref": "#/$defs/role" },
+        "inset": { "type": "boolean" }
+      }
+    },
+    "elevation": {
+      "description": "Exactly one elevation mechanism per element: a border OR a shadow, never both. Border width is derived (hairline = 1, otherwise 0); hover is derived (raised lifts one ramp step, flat/hairline tint).",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": { "kind": { "const": "flat" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "color"],
+          "properties": {
+            "kind": { "const": "hairline" },
+            "color": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["role", "alpha"],
+              "properties": {
+                "role": { "$ref": "#/$defs/role" },
+                "alpha": { "type": "integer", "minimum": 1, "maximum": 100 }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "level"],
+          "properties": {
+            "kind": { "const": "raised" },
+            "level": { "enum": ["sm", "md"] }
+          }
+        }
+      ]
+    },
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["elevation"],
+      "properties": { "elevation": { "$ref": "#/$defs/elevation" } }
+    },
+    "densityPx": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["height", "padding_x", "gap"],
+      "properties": {
+        "height": { "type": "integer", "minimum": 12, "maximum": 64 },
+        "padding_x": { "type": "integer", "minimum": 0, "maximum": 32 },
+        "gap": { "type": "integer", "minimum": 0, "maximum": 16 }
+      }
+    },
+    "density": {
+      "description": "A named per-surface table (spec/look.md), or pinned px per surface when no table fits.",
+      "oneOf": [
+        { "enum": ["compact", "regular", "comfortable"] },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["web", "desktop"],
+          "properties": {
+            "web": { "$ref": "#/$defs/densityPx" },
+            "desktop": { "$ref": "#/$defs/densityPx" }
+          }
+        }
+      ]
+    },
+    "focus": {
+      "description": "Keyboard focus must stay visible: there is no 'none'. Every value must give >= 3:1 focused-vs-unfocused difference against each adjacent surface in both modes (verified against the pinned schemes by the authoring tool and implementations).",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "width", "offset"],
+          "properties": {
+            "kind": { "const": "ring" },
+            "width": { "type": "integer", "minimum": 1, "maximum": 4 },
+            "offset": { "type": "integer", "minimum": 0, "maximum": 4 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "width"],
+          "properties": {
+            "kind": { "const": "outline" },
+            "width": { "type": "integer", "minimum": 1, "maximum": 4 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "amount"],
+          "properties": {
+            "kind": { "const": "tint" },
+            "amount": { "type": "integer", "minimum": 1, "maximum": 100 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "width", "offset"],
+          "properties": {
+            "kind": { "const": "indicator" },
+            "width": { "type": "integer", "minimum": 1, "maximum": 4 },
+            "offset": { "type": "integer", "minimum": 0, "maximum": 8 }
+          }
+        }
+      ]
+    },
+    "control": {
+      "description": "The control recipe (buttons). Variants: primary, secondary, ghost, danger (text controls use ghost).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variants", "density", "focus"],
+      "properties": {
+        "variants": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["primary", "secondary", "ghost", "danger"],
+          "properties": {
+            "primary": { "$ref": "#/$defs/variant" },
+            "secondary": { "$ref": "#/$defs/variant" },
+            "ghost": { "$ref": "#/$defs/variant" },
+            "danger": { "$ref": "#/$defs/variant" }
+          }
+        },
+        "density": { "$ref": "#/$defs/density" },
+        "focus": { "$ref": "#/$defs/focus" }
+      }
+    }
+  }
+}

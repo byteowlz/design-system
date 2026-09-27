@@ -1,0 +1,141 @@
+/**
+ * Look schema check (spec/look.schema.json, spec/look.md, ADR-0004).
+ *
+ * Zero-dependency: a small validator for exactly the JSON Schema keywords the Look
+ * schema uses, plus the semantic rules JSON Schema cannot express:
+ *   - a recipe using raised elevation requires identity.shadows (the ramp)
+ *   - the control radius tier (md = dial * 0.75) must stay below half the control
+ *     height on every surface, so compact controls never become pills by accident
+ *
+ * Every fixture in spec/fixtures/look/valid must pass; every fixture in
+ * spec/fixtures/look/invalid must fail, at the path recorded in invalid/EXPECTED.json.
+ *
+ * Usage: bun scripts/check-look.ts            (fixtures)
+ *        bun scripts/check-look.ts a.json ... (validate given Look files)
+ */
+import { readdirSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+
+type Json = null | boolean | number | string | Json[] | { [k: string]: Json };
+type Schema = { [k: string]: any };
+
+const root = resolve(import.meta.dir, "..");
+const schema: Schema = JSON.parse(readFileSync(join(root, "spec/look.schema.json"), "utf8"));
+
+/** Named per-surface density tables (spec/look.md). Provisional until the baselines land. */
+export const DENSITY: Record<string, Record<"web" | "desktop", { height: number; padding_x: number; gap: number }>> = {
+	compact: { web: { height: 28, padding_x: 10, gap: 6 }, desktop: { height: 24, padding_x: 8, gap: 4 } },
+	regular: { web: { height: 34, padding_x: 14, gap: 7 }, desktop: { height: 28, padding_x: 12, gap: 6 } },
+	comfortable: { web: { height: 40, padding_x: 18, gap: 8 }, desktop: { height: 32, padding_x: 14, gap: 6 } },
+};
+
+function typeOf(v: Json): string {
+	if (v === null) return "null";
+	if (Array.isArray(v)) return "array";
+	if (typeof v === "number") return Number.isInteger(v) ? "integer" : "number";
+	return typeof v;
+}
+
+function resolveRef(ref: string): Schema {
+	if (!ref.startsWith("#/")) throw new Error(`unsupported $ref ${ref}`);
+	return ref.slice(2).split("/").reduce((s: any, k) => s[k], schema);
+}
+
+/** Returns a list of "path: message" errors (empty = valid). */
+function validate(v: Json, s: Schema, path: string): string[] {
+	if (s.$ref) return validate(v, resolveRef(s.$ref), path);
+	const errs: string[] = [];
+	const at = path || "(root)";
+	if (s.allOf) for (const sub of s.allOf) errs.push(...validate(v, sub, path));
+	if (s.oneOf) {
+		const passing = s.oneOf.filter((sub: Schema) => validate(v, sub, path).length === 0).length;
+		if (passing !== 1) errs.push(`${at}: must match exactly one allowed form (matched ${passing})`);
+	}
+	if ("const" in s && v !== s.const) errs.push(`${at}: must be ${JSON.stringify(s.const)}`);
+	if (s.enum && !s.enum.includes(v)) errs.push(`${at}: ${JSON.stringify(v)} is not one of ${s.enum.join(" | ")}`);
+	if (s.type) {
+		const t = typeOf(v);
+		const ok = s.type === t || (s.type === "number" && t === "integer");
+		if (!ok) return [...errs, `${at}: expected ${s.type}, got ${t}`];
+	}
+	if (typeof v === "number") {
+		if (s.minimum !== undefined && v < s.minimum) errs.push(`${at}: ${v} < minimum ${s.minimum}`);
+		if (s.maximum !== undefined && v > s.maximum) errs.push(`${at}: ${v} > maximum ${s.maximum}`);
+		if (s.multipleOf !== undefined && !Number.isInteger(v / s.multipleOf))
+			errs.push(`${at}: ${v} is not a multiple of ${s.multipleOf} (integers or exact binary fractions only)`);
+	}
+	if (typeof v === "string") {
+		if (s.minLength !== undefined && v.length < s.minLength) errs.push(`${at}: shorter than ${s.minLength}`);
+		if (s.pattern && !new RegExp(s.pattern).test(v)) errs.push(`${at}: does not match ${s.pattern}`);
+	}
+	if (Array.isArray(v)) {
+		if (s.minItems !== undefined && v.length < s.minItems) errs.push(`${at}: fewer than ${s.minItems} items`);
+		if (s.maxItems !== undefined && v.length > s.maxItems) errs.push(`${at}: more than ${s.maxItems} items`);
+		if (s.items) v.forEach((item, i) => errs.push(...validate(item, s.items, `${path}[${i}]`)));
+	}
+	if (typeOf(v) === "object") {
+		const o = v as { [k: string]: Json };
+		for (const k of s.required ?? []) if (!(k in o)) errs.push(`${at}: missing ${k}`);
+		for (const [k, val] of Object.entries(o)) {
+			const sub = s.properties?.[k];
+			const p = path ? `${path}.${k}` : k;
+			if (sub) errs.push(...validate(val, sub, p));
+			else if (s.additionalProperties === false) errs.push(`${at}: unknown property ${k}`);
+		}
+	}
+	return errs;
+}
+
+/** Rules JSON Schema cannot express. */
+function semantic(look: any): string[] {
+	const errs: string[] = [];
+	const control = look.recipes.control;
+	const raised = Object.values(control.variants).some((v: any) => v.elevation.kind === "raised");
+	if (raised && !look.identity.shadows) errs.push("identity.shadows: required when a recipe uses raised elevation");
+	const md = look.identity.radius * 0.75;
+	const heights = typeof control.density === "string"
+		? { web: DENSITY[control.density].web.height, desktop: DENSITY[control.density].desktop.height }
+		: { web: control.density.web.height, desktop: control.density.desktop.height };
+	for (const [surface, h] of Object.entries(heights))
+		if (md * 2 >= h) errs.push(`identity.radius: control radius ${md}px on a ${h}px ${surface} control reads as a pill (needs radius-md * 2 < height)`);
+	return errs;
+}
+
+export function checkLook(look: Json): string[] {
+	const errs = validate(look, schema, "");
+	return errs.length ? errs : semantic(look);
+}
+
+function main(): number {
+	const files = process.argv.slice(2);
+	let failed = 0;
+	const report = (ok: boolean, msg: string) => {
+		if (!ok) failed++;
+		console.log(`${ok ? "PASS" : "FAIL"}  ${msg}`);
+	};
+	if (files.length) {
+		for (const f of files) {
+			const errs = checkLook(JSON.parse(readFileSync(f, "utf8")));
+			report(errs.length === 0, `${f}${errs.length ? `\n      ${errs.join("\n      ")}` : ""}`);
+		}
+		return failed ? 1 : 0;
+	}
+	const dir = join(root, "spec/fixtures/look");
+	for (const f of readdirSync(join(dir, "valid")).filter((n) => n.endsWith(".json")).sort()) {
+		const errs = checkLook(JSON.parse(readFileSync(join(dir, "valid", f), "utf8")));
+		report(errs.length === 0, `valid/${f} is accepted${errs.length ? `\n      ${errs.join("\n      ")}` : ""}`);
+	}
+	const expected: Record<string, string> = JSON.parse(readFileSync(join(dir, "invalid/EXPECTED.json"), "utf8"));
+	const invalid = readdirSync(join(dir, "invalid")).filter((n) => n.endsWith(".look.json")).sort();
+	for (const f of invalid) {
+		const errs = checkLook(JSON.parse(readFileSync(join(dir, "invalid", f), "utf8")));
+		const want = expected[f];
+		const hit = errs.find((e) => want && e.includes(want));
+		report(!!want && !!hit, `invalid/${f} is rejected${hit ? ` — ${hit}` : want ? ` (no error mentioning "${want}"; got: ${errs.join("; ") || "none"})` : " (missing from EXPECTED.json)"}`);
+	}
+	for (const f of Object.keys(expected)) if (!invalid.includes(f)) report(false, `EXPECTED.json lists missing fixture ${f}`);
+	console.log(`\n${failed ? `${failed} check(s) failed` : "all Look checks passed"}`);
+	return failed ? 1 : 0;
+}
+
+if (import.meta.main) process.exit(main());

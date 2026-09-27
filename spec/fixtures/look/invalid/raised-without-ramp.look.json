@@ -1,0 +1,62 @@
+{
+	"$schema": "../../../look.schema.json",
+	"id": "raised-without-ramp",
+	"name": "Lumen",
+	"version": 1,
+	"schemes": {
+		"dark": "lumen-dark",
+		"light": "lumen-light"
+	},
+	"identity": {
+		"fonts": {
+			"sans": {
+				"stack": [
+					"system-ui",
+					"sans-serif"
+				],
+				"native": "system-ui"
+			},
+			"mono": {
+				"stack": [
+					"ui-monospace",
+					"monospace"
+				],
+				"native": "monospace"
+			}
+		},
+		"radius": 10
+	},
+	"recipes": {
+		"control": {
+			"variants": {
+				"primary": {
+					"elevation": {
+						"kind": "raised",
+						"level": "sm"
+					}
+				},
+				"secondary": {
+					"elevation": {
+						"kind": "flat"
+					}
+				},
+				"ghost": {
+					"elevation": {
+						"kind": "flat"
+					}
+				},
+				"danger": {
+					"elevation": {
+						"kind": "flat"
+					}
+				}
+			},
+			"density": "regular",
+			"focus": {
+				"kind": "indicator",
+				"width": 2,
+				"offset": 3
+			}
+		}
+	}
+}

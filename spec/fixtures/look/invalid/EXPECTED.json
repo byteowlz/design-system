@@ -1,0 +1,9 @@
+{
+	"border-plus-shadow.look.json": "recipes.control.variants.primary.elevation",
+	"focus-none.look.json": "recipes.control.focus",
+	"hairline-plus-shadow.look.json": "recipes.control.variants.secondary.elevation",
+	"inexact-number.look.json": "identity.radius",
+	"radius-pill.look.json": "pill",
+	"raised-without-ramp.look.json": "identity.shadows",
+	"unknown-enum.look.json": "recipes.control.density"
+}

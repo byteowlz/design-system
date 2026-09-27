@@ -1,0 +1,185 @@
+{
+	"$schema": "../../../look.schema.json",
+	"id": "moss",
+	"name": "Moss",
+	"version": 1,
+	"schemes": {
+		"dark": "moss-dark",
+		"light": "moss-light"
+	},
+	"identity": {
+		"fonts": {
+			"sans": {
+				"stack": [
+					"system-ui",
+					"sans-serif"
+				],
+				"native": "system-ui"
+			},
+			"mono": {
+				"stack": [
+					"ui-monospace",
+					"monospace"
+				],
+				"native": "monospace"
+			},
+			"display": {
+				"stack": [
+					"ui-serif",
+					"serif"
+				],
+				"native": "serif"
+			}
+		},
+		"radius": 12,
+		"shadows": {
+			"dark": {
+				"sm": [
+					{
+						"x": 0,
+						"y": 2,
+						"blur": 11,
+						"spread": -2,
+						"alpha": 33,
+						"color": "surface-sunken"
+					}
+				],
+				"md": [
+					{
+						"x": 0,
+						"y": 4,
+						"blur": 15,
+						"spread": -4,
+						"alpha": 25,
+						"color": "surface-sunken"
+					},
+					{
+						"x": 0,
+						"y": 11,
+						"blur": 53,
+						"spread": -11,
+						"alpha": 55,
+						"color": "surface-sunken"
+					},
+					{
+						"x": 0,
+						"y": 1,
+						"blur": 0,
+						"spread": 0,
+						"alpha": 4,
+						"color": "foreground",
+						"inset": true
+					}
+				],
+				"lg": [
+					{
+						"x": 0,
+						"y": 6,
+						"blur": 23,
+						"spread": -6,
+						"alpha": 28,
+						"color": "surface-sunken"
+					},
+					{
+						"x": 0,
+						"y": 27,
+						"blur": 99,
+						"spread": -23,
+						"alpha": 69,
+						"color": "surface-sunken"
+					},
+					{
+						"x": 0,
+						"y": 1,
+						"blur": 0,
+						"spread": 0,
+						"alpha": 4,
+						"color": "foreground",
+						"inset": true
+					}
+				]
+			},
+			"light": {
+				"sm": [
+					{
+						"x": 0,
+						"y": 2,
+						"blur": 11,
+						"spread": -2,
+						"alpha": 8,
+						"color": "foreground"
+					}
+				],
+				"md": [
+					{
+						"x": 0,
+						"y": 4,
+						"blur": 15,
+						"spread": -4,
+						"alpha": 6,
+						"color": "foreground"
+					},
+					{
+						"x": 0,
+						"y": 11,
+						"blur": 53,
+						"spread": -11,
+						"alpha": 13,
+						"color": "foreground"
+					}
+				],
+				"lg": [
+					{
+						"x": 0,
+						"y": 6,
+						"blur": 23,
+						"spread": -6,
+						"alpha": 6,
+						"color": "foreground"
+					},
+					{
+						"x": 0,
+						"y": 27,
+						"blur": 99,
+						"spread": -23,
+						"alpha": 16,
+						"color": "foreground"
+					}
+				]
+			}
+		}
+	},
+	"recipes": {
+		"control": {
+			"variants": {
+				"primary": {
+					"elevation": {
+						"kind": "raised",
+						"level": "sm"
+					}
+				},
+				"secondary": {
+					"elevation": {
+						"kind": "flat"
+					}
+				},
+				"ghost": {
+					"elevation": {
+						"kind": "flat"
+					}
+				},
+				"danger": {
+					"elevation": {
+						"kind": "flat"
+					}
+				}
+			},
+			"density": "comfortable",
+			"focus": {
+				"kind": "indicator",
+				"width": 3,
+				"offset": 4
+			}
+		}
+	}
+}

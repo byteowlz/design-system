@@ -9,6 +9,7 @@
     "build:pkg": "bun run --filter @byteowlz/design-system build",
     "build:playground": "bun run --filter @byteowlz/design-system-playground build",
     "dev": "bun run --filter @byteowlz/design-system-playground dev",
-    "typecheck": "bun run --filter '*' --elide-lines tsc --noEmit"
+    "typecheck": "bun run --filter '*' --elide-lines tsc --noEmit",
+    "check:look": "bun scripts/check-look.ts"
   }
 }
