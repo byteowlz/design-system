@@ -59,17 +59,28 @@ Hover is derived as shown unless the variant pins `hover` (same shape as `elevat
 
 ### Density
 
-Density is either a named table or pinned px per surface. The named tables hold integer px:
+Controls come in **size tiers** named after the toolkit sizes:
+- `xs`, `sm` and `md`, where `md` is the toolkit default (shadcn `default`, gpui `medium`);
+- `lg`.
 
-| name | web h / pad-x / gap | desktop h / pad-x / gap |
-|------|---------------------|-------------------------|
-| `compact` | 28 / 10 / 6 | 24 / 8 / 4 |
-| `regular` | 34 / 14 / 7 | 28 / 12 / 6 |
-| `comfortable` | 40 / 18 / 8 | 32 / 14 / 6 |
+A call site keeps choosing its size; the Look decides what each tier measures.
 
-The table values are **provisional** until the web and native baselines are recorded. A Look may pin `{ web: {height, padding_x, gap}, desktop: {…} }` instead; the default Look will.
+Density is either a named table or pinned px per surface and tier. The named tables define every tier on both surfaces. They hold integer px as height / padding-x / gap:
 
-**Radius versus height:** the control radius tier `md = dial × 0.75` must satisfy `2 × md < height` on every surface, so compact controls never become pills by accident.
+| name | surface | xs | sm | md | lg |
+|------|---------|----|----|----|----|
+| `compact` | web | 20 / 6 / 4 | 24 / 8 / 4 | 28 / 10 / 6 | 32 / 12 / 6 |
+| | desktop | 18 / 4 / 4 | 20 / 6 / 4 | 24 / 8 / 4 | 28 / 10 / 6 |
+| `regular` | web | 26 / 8 / 4 | 30 / 12 / 6 | 34 / 14 / 7 | 38 / 16 / 8 |
+| | desktop | 20 / 6 / 4 | 24 / 8 / 4 | 28 / 12 / 6 | 32 / 14 / 6 |
+| `comfortable` | web | 32 / 12 / 6 | 36 / 14 / 7 | 40 / 18 / 8 | 44 / 20 / 8 |
+| | desktop | 24 / 8 / 4 | 28 / 10 / 6 | 32 / 14 / 6 | 36 / 16 / 8 |
+
+The tables are **authoring presets**, not baselines. A Look may instead pin `{ web: { md: {height, padding_x, gap}, sm: {…} }, desktop: {…} }`. `md` is required on each surface, and a surface pins only the tiers it uses. The default Look pins, because today's Oqto measures differently on each surface:
+- web `sm` 32 / 12 and `md` 36 / 16;
+- desktop `xs` 20 / 4, `sm` 24 / 8 and `md` 32 / 10.
+
+**Radius versus height:** the control radius tier `md = dial × 0.75` must satisfy `2 × md < height` for every tier on every surface. The smallest tier decides. This keeps compact controls from becoming pills by accident.
 
 ### Focus
 

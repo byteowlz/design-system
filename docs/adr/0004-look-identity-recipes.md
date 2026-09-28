@@ -39,7 +39,7 @@ Three constraints shaped the design:
   - **Presets** cover the common cases: `flat`, `hairline`, `raised-sm` and `raised-md`. They are shorthand with a fixed expansion.
   - **Hover** is derived by default (a ramp shadow lifts one step, otherwise the surface tints). It can be pinned explicitly.
 - **Shadows are structured layers** `{ x, y, blur, spread, alpha, color, inset? }` in a per-mode ramp `sm | md | lg`. `color` is a role or an absolute neutral (`black | white | transparent`); the neutrals exist so existing shadows can be pinned verbatim, and they are not portable roles. Native surfaces build their shadows from the same data.
-- **Density** is a named per-surface table (`compact | regular | comfortable`: integer height, horizontal padding, gap), or pinned px per surface when no table fits.
+- **Density** is defined per **size tier**. The tiers `xs | sm | md | lg` follow the toolkit size names, and `md` is the toolkit default. Call sites keep choosing a tier; the Look decides what each tier measures. Density is either a named table (`compact | regular | comfortable`, integer height, horizontal padding and gap for every tier on both surfaces) or pinned px per surface and tier. Both Oqto surfaces use several sizes today, so a single height per surface cannot reproduce them.
 - **Focus** is `ring | outline | tint | indicator | native`, with width, offset and alpha where meaningful. A ring may also recolour the control's border; `native` pins the platform's default indicator.
   - There is no `none`; keyboard focus must stay visible.
   - Every value must give at least a 3:1 focused-versus-unfocused difference against each adjacent surface, in both modes.

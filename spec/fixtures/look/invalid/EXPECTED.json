@@ -1,7 +1,8 @@
 {
-	"focus-none.look.json": "recipes.control.focus",
-	"inexact-number.look.json": "identity.radius",
-	"radius-pill.look.json": "pill",
-	"raised-without-ramp.look.json": "identity.shadows",
-	"unknown-enum.look.json": "recipes.control.density"
+  "focus-none.look.json": "recipes.control.focus",
+  "inexact-number.look.json": "identity.radius",
+  "radius-pill.look.json": "pill",
+  "raised-without-ramp.look.json": "identity.shadows",
+  "unknown-enum.look.json": "recipes.control.density",
+  "density-missing-md.look.json": "recipes.control.density"
 }

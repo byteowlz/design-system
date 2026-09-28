@@ -321,7 +321,7 @@
       }
     },
     "density": {
-      "description": "A named per-surface table (spec/look.md), or pinned px per surface when no table fits.",
+      "description": "A named table (spec/look.md, defines every tier on both surfaces), or pinned px per surface and size tier when no table fits.",
       "oneOf": [
         {
           "enum": [
@@ -339,10 +339,10 @@
           ],
           "properties": {
             "web": {
-              "$ref": "#/$defs/densityPx"
+              "$ref": "#/$defs/densityTiers"
             },
             "desktop": {
-              "$ref": "#/$defs/densityPx"
+              "$ref": "#/$defs/densityTiers"
             }
           }
         }
@@ -619,6 +619,28 @@
           }
         }
       ]
+    },
+    "densityTiers": {
+      "description": "Pinned px per size tier. Tiers follow the toolkit size names: xs, sm, md (the toolkit default) and lg. md is required; a surface pins only the tiers it uses.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "md"
+      ],
+      "properties": {
+        "xs": {
+          "$ref": "#/$defs/densityPx"
+        },
+        "sm": {
+          "$ref": "#/$defs/densityPx"
+        },
+        "md": {
+          "$ref": "#/$defs/densityPx"
+        },
+        "lg": {
+          "$ref": "#/$defs/densityPx"
+        }
+      }
     }
   }
 }

@@ -25,11 +25,26 @@ type Schema = { [k: string]: any };
 const root = resolve(import.meta.dir, "..");
 const schema: Schema = JSON.parse(readFileSync(join(root, "spec/look.schema.json"), "utf8"));
 
-/** Named per-surface density tables (spec/look.md). Provisional until the baselines land. */
-export const DENSITY: Record<string, Record<"web" | "desktop", { height: number; padding_x: number; gap: number }>> = {
-	compact: { web: { height: 28, padding_x: 10, gap: 6 }, desktop: { height: 24, padding_x: 8, gap: 4 } },
-	regular: { web: { height: 34, padding_x: 14, gap: 7 }, desktop: { height: 28, padding_x: 12, gap: 6 } },
-	comfortable: { web: { height: 40, padding_x: 18, gap: 8 }, desktop: { height: 32, padding_x: 14, gap: 6 } },
+/** Size tiers, following the toolkit size names (md = the toolkit default). */
+export const TIERS = ["xs", "sm", "md", "lg"] as const;
+type Tier = (typeof TIERS)[number];
+type Px = { height: number; padding_x: number; gap: number };
+const px = (height: number, padding_x: number, gap: number): Px => ({ height, padding_x, gap });
+
+/** Named density tables (spec/look.md): every tier on both surfaces. Provisional; they are authoring presets, not baselines. */
+export const DENSITY: Record<string, Record<"web" | "desktop", Record<Tier, Px>>> = {
+	compact: {
+		web: { xs: px(20, 6, 4), sm: px(24, 8, 4), md: px(28, 10, 6), lg: px(32, 12, 6) },
+		desktop: { xs: px(18, 4, 4), sm: px(20, 6, 4), md: px(24, 8, 4), lg: px(28, 10, 6) },
+	},
+	regular: {
+		web: { xs: px(26, 8, 4), sm: px(30, 12, 6), md: px(34, 14, 7), lg: px(38, 16, 8) },
+		desktop: { xs: px(20, 6, 4), sm: px(24, 8, 4), md: px(28, 12, 6), lg: px(32, 14, 6) },
+	},
+	comfortable: {
+		web: { xs: px(32, 12, 6), sm: px(36, 14, 7), md: px(40, 18, 8), lg: px(44, 20, 8) },
+		desktop: { xs: px(24, 8, 4), sm: px(28, 10, 6), md: px(32, 14, 6), lg: px(36, 16, 8) },
+	},
 };
 
 function typeOf(v: Json): string {
@@ -97,11 +112,11 @@ function semantic(look: any): string[] {
 		[v.elevation, v.hover].some((e) => e && (expand(e).shadow as any)?.ramp));
 	if (usesRamp && !look.identity.shadows) errs.push("identity.shadows: required when an elevation references the ramp");
 	const md = look.identity.radius * 0.75;
-	const heights = typeof control.density === "string"
-		? { web: DENSITY[control.density].web.height, desktop: DENSITY[control.density].desktop.height }
-		: { web: control.density.web.height, desktop: control.density.desktop.height };
-	for (const [surface, h] of Object.entries(heights))
-		if (md * 2 >= h) errs.push(`identity.radius: control radius ${md}px on a ${h}px ${surface} control reads as a pill (needs radius-md * 2 < height)`);
+	// Every tier a surface defines must stay below the pill threshold; the smallest one decides.
+	const tiers = typeof control.density === "string" ? DENSITY[control.density] : control.density;
+	for (const surface of ["web", "desktop"] as const)
+		for (const [tier, d] of Object.entries<Px>(tiers[surface]))
+			if (md * 2 >= d.height) errs.push(`identity.radius: control radius ${md}px on a ${d.height}px ${surface} ${tier} control reads as a pill (needs radius-md * 2 < height)`);
 	return errs;
 }
 
