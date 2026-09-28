@@ -291,6 +291,10 @@
         "hover": {
           "description": "Optional explicit hover elevation. When absent, hover is derived: a ramp shadow lifts one step, otherwise the surface tints.",
           "$ref": "#/$defs/elevation"
+        },
+        "focus": {
+          "description": "Overrides the control focus for this variant (e.g. a danger-coloured ring).",
+          "$ref": "#/$defs/focus"
         }
       }
     },
@@ -374,13 +378,15 @@
               "maximum": 4
             },
             "alpha": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 100
+              "$ref": "#/$defs/alphaByMode"
             },
             "border_to_ring": {
-              "description": "The control's border also takes the ring colour while focused.",
-              "type": "boolean"
+              "description": "The control border also takes the focus colour while focused (per mode when a scheme overrides it).",
+              "$ref": "#/$defs/flagByMode"
+            },
+            "color": {
+              "description": "Focus colour role; defaults to ring.",
+              "$ref": "#/$defs/role"
             }
           }
         },
@@ -401,9 +407,11 @@
               "maximum": 4
             },
             "alpha": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 100
+              "$ref": "#/$defs/alphaByMode"
+            },
+            "color": {
+              "description": "Focus colour role; defaults to ring.",
+              "$ref": "#/$defs/role"
             }
           }
         },
@@ -448,9 +456,11 @@
               "maximum": 8
             },
             "alpha": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 100
+              "$ref": "#/$defs/alphaByMode"
+            },
+            "color": {
+              "description": "Focus colour role; defaults to ring.",
+              "$ref": "#/$defs/role"
             }
           }
         },
@@ -490,19 +500,19 @@
           ],
           "properties": {
             "primary": {
-              "$ref": "#/$defs/variant"
+              "$ref": "#/$defs/variantSpec"
             },
             "secondary": {
-              "$ref": "#/$defs/variant"
+              "$ref": "#/$defs/variantSpec"
             },
             "ghost": {
-              "$ref": "#/$defs/variant"
+              "$ref": "#/$defs/variantSpec"
             },
             "danger": {
-              "$ref": "#/$defs/variant"
+              "$ref": "#/$defs/variantSpec"
             },
             "outline": {
-              "$ref": "#/$defs/variant"
+              "$ref": "#/$defs/variantSpec"
             }
           }
         },
@@ -510,7 +520,7 @@
           "$ref": "#/$defs/density"
         },
         "focus": {
-          "$ref": "#/$defs/focus"
+          "$ref": "#/$defs/focusSpec"
         }
       }
     },
@@ -641,6 +651,108 @@
           "$ref": "#/$defs/densityPx"
         }
       }
+    },
+    "alphaByMode": {
+      "description": "An integer percentage, or one per mode when the pinned scheme pair differs.",
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dark",
+            "light"
+          ],
+          "properties": {
+            "dark": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "light": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        }
+      ]
+    },
+    "flagByMode": {
+      "description": "A boolean, or one per mode.",
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dark",
+            "light"
+          ],
+          "properties": {
+            "dark": {
+              "type": "boolean"
+            },
+            "light": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "focusSpec": {
+      "description": "One focus for every surface, or one per surface when they differ today.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/focus"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "web",
+            "desktop"
+          ],
+          "properties": {
+            "web": {
+              "$ref": "#/$defs/focus"
+            },
+            "desktop": {
+              "$ref": "#/$defs/focus"
+            }
+          }
+        }
+      ]
+    },
+    "variantSpec": {
+      "description": "One variant for every surface, or one per surface when they differ today (the default Look pins surfaces verbatim).",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/variant"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "web",
+            "desktop"
+          ],
+          "properties": {
+            "web": {
+              "$ref": "#/$defs/variant"
+            },
+            "desktop": {
+              "$ref": "#/$defs/variant"
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -111,9 +111,31 @@ All lengths are integers or exact binary fractions (multiples of 0.25 px). Alpha
 
 ## The default (Oqto) Look
 
-> **Placeholder, tracked separately.** The default Look fixture is not part of this specification change. Its values must be pinned from recorded web computed-style and native baselines for every control variant × size × state, so that today's look is reproduced exactly.
->
-> It is an ordinary Look, with no compatibility mode and no legacy flag. Its values are expected to be compound: ring focus on shared buttons, native focus where a surface uses it, a border plus a shadow on the outline button, and per-surface pinned density. Until then there is no default Look fixture, and the density tables above are provisional.
+`spec/fixtures/look/valid/oqto.look.json` pins today's Oqto buttons on both surfaces. It is an ordinary Look, with no compatibility mode and no legacy flag. It passes the schema and deliberately fails the house lint: it uses ring focus, and the Web outline button has a border plus a shadow. It is not a house Look.
+
+**Surface and mode splits.** Oqto renders differently per surface today, so the recipe allows three kinds of split:
+- A variant may be split into `{ web, desktop }`.
+- A variant may override the control `focus`.
+- Focus `alpha` and `border_to_ring` may differ per mode (`{ dark, light }`).
+
+Examples from the fixture:
+- The Web danger button's ring uses the `danger` role at 40% (dark) and 20% (light); Desktop uses the ring role at 50% for every variant.
+- The Web outline button keeps its border colour on focus in dark mode only, because `dark:border-input` wins.
+- The Web outline button has a border and a shadow; Desktop's bordered button (gpui's default variant) has only the border.
+
+**Provenance.**
+- Web: Chromium 147 computed styles, oqto `feat/look-control-recipe` at `8c9b6a5c`. That is 160 samples across 16 controls, 5 states and dark/light (issue `oqto-a8hg`).
+- Web gap: `components/ui/button.tsx` at the same commit (`gap-2`, sm `gap-1.5`); its SHA-256 matches the baseline's recorded hash.
+- Desktop: heights and square icon-only buttons are measured by a headless render in oqto-desktop (`control_look.rs`, `trx-v4j9.17`). Padding, gap, border and focus are read from gpui-component 0.6.1 source, guarded by a version pin.
+- Desktop native screenshots are still pending.
+
+**Known gaps (recorded, not approximated):**
+- The Web light outline shadow is a zero-alpha layer whose raw colour is `rgb(181 209 236)`. It is pinned as `transparent` at alpha 0, which is visually identical. The computed styles also carry Tailwind's four zero-valued composition layers. A Web implementation must keep the existing declarations for the Oqto Look so that computed styles stay byte-identical.
+- The Web shared button narrows its padding when it contains an icon (`has-[>svg]`: md 12, sm 10). Icon-plus-label buttons were not measured, and `densityPx` has no field for this yet.
+- Web draws the ring as a box-shadow with outline none. Desktop draws it as a 3 px bordered child outside the control's border. Both are the same `ring` (width 3, offset 0).
+- Per-state colours are not part of the control recipe. Examples: ghost hover white/10, disabled opacity 0.5, the dark danger fill at 60%. They stay in each surface's scheme-to-vocabulary mapping.
+- The Workbench sidebar icon button (`.wb-icon-button`, native `outline: auto`) is a Workbench control, not the shared button, and is out of scope for `control`.
+- Fonts in `identity` come from the design studio export and are not baselined here.
 
 ## House-Look lint (taste, not contract)
 

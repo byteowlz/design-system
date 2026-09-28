@@ -35,19 +35,33 @@ const visibleShadow = (s: Shadow) =>
 	s !== "none" &&
 	("ramp" in s || [...s.dark, ...s.light].some((l) => l.alpha > 0 && l.color !== "transparent"));
 
+/** A variant or focus may be split per surface (`{ web, desktop }`); yields each part with its path. */
+export function surfaces(v: any, path: string): [string, any][] {
+	return v && typeof v === "object" && "web" in v && "desktop" in v
+		? [[`${path}.web`, v.web], [`${path}.desktop`, v.desktop]]
+		: [[path, v]];
+}
+
+/** Every concrete variant of a control, with its schema path. */
+export function variants(control: any): [string, any][] {
+	return Object.entries<any>(control.variants).flatMap(([name, v]) => surfaces(v, `recipes.control.variants.${name}`));
+}
+
 /** Returns lint errors for one Look (empty = passes the house rules). */
 export function lintHouseLook(look: any): string[] {
 	const errs: string[] = [];
 	const control = look.recipes.control;
-	for (const [name, variant] of Object.entries<any>(control.variants)) {
+	for (const [path, variant] of variants(control)) {
 		for (const state of ["elevation", "hover"] as const) {
 			if (!variant[state]) continue;
 			const { border, shadow } = expand(variant[state]);
 			if (visibleBorder(border) && visibleShadow(shadow))
-				errs.push(`recipes.control.variants.${name}.${state}: visible border and shadow together (house rule: elevation once)`);
+				errs.push(`${path}.${state}: visible border and shadow together (house rule: elevation once)`);
 		}
+		if (variant.focus?.kind === "ring") errs.push(`${path}.focus: ring focus (house rule: no ring focus)`);
 	}
-	if (control.focus.kind === "ring") errs.push("recipes.control.focus: ring focus (house rule: no ring focus)");
+	for (const [path, focus] of surfaces(control.focus, "recipes.control.focus"))
+		if (focus.kind === "ring") errs.push(`${path}: ring focus (house rule: no ring focus)`);
 	return errs;
 }
 

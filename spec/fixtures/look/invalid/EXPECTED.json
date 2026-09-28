@@ -4,5 +4,6 @@
   "radius-pill.look.json": "pill",
   "raised-without-ramp.look.json": "identity.shadows",
   "unknown-enum.look.json": "recipes.control.density",
-  "density-missing-md.look.json": "recipes.control.density"
+  "density-missing-md.look.json": "recipes.control.density",
+  "variant-split-missing-surface.look.json": "recipes.control.variants.ghost"
 }

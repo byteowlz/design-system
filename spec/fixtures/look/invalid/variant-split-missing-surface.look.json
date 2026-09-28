@@ -1,0 +1,203 @@
+{
+  "$schema": "../../../look.schema.json",
+  "id": "variant-split-missing-surface",
+  "name": "Variant split missing a surface",
+  "version": 1,
+  "schemes": {
+    "dark": "lumen-dark",
+    "light": "lumen-light"
+  },
+  "identity": {
+    "fonts": {
+      "sans": {
+        "stack": [
+          "system-ui",
+          "sans-serif"
+        ],
+        "native": "system-ui"
+      },
+      "mono": {
+        "stack": [
+          "ui-monospace",
+          "monospace"
+        ],
+        "native": "monospace"
+      }
+    },
+    "radius": 10,
+    "shadows": {
+      "dark": {
+        "sm": [
+          {
+            "x": 0,
+            "y": 1,
+            "blur": 2,
+            "spread": 0,
+            "alpha": 48,
+            "color": "surface-sunken"
+          }
+        ],
+        "md": [
+          {
+            "x": 0,
+            "y": 1,
+            "blur": 2,
+            "spread": 0,
+            "alpha": 30,
+            "color": "surface-sunken"
+          },
+          {
+            "x": 0,
+            "y": 4,
+            "blur": 9,
+            "spread": -2,
+            "alpha": 36,
+            "color": "surface-sunken"
+          },
+          {
+            "x": 0,
+            "y": 13,
+            "blur": 26,
+            "spread": -9,
+            "alpha": 54,
+            "color": "surface-sunken"
+          },
+          {
+            "x": 0,
+            "y": 1,
+            "blur": 0,
+            "spread": 0,
+            "alpha": 6,
+            "color": "foreground",
+            "inset": true
+          }
+        ],
+        "lg": [
+          {
+            "x": 0,
+            "y": 2,
+            "blur": 4,
+            "spread": 0,
+            "alpha": 27,
+            "color": "surface-sunken"
+          },
+          {
+            "x": 0,
+            "y": 13,
+            "blur": 26,
+            "spread": -7,
+            "alpha": 51,
+            "color": "surface-sunken"
+          },
+          {
+            "x": 0,
+            "y": 35,
+            "blur": 70,
+            "spread": -18,
+            "alpha": 75,
+            "color": "surface-sunken"
+          },
+          {
+            "x": 0,
+            "y": 1,
+            "blur": 0,
+            "spread": 0,
+            "alpha": 6,
+            "color": "foreground",
+            "inset": true
+          }
+        ]
+      },
+      "light": {
+        "sm": [
+          {
+            "x": 0,
+            "y": 1,
+            "blur": 2,
+            "spread": 0,
+            "alpha": 6,
+            "color": "foreground"
+          }
+        ],
+        "md": [
+          {
+            "x": 0,
+            "y": 1,
+            "blur": 2,
+            "spread": 0,
+            "alpha": 4,
+            "color": "foreground"
+          },
+          {
+            "x": 0,
+            "y": 4,
+            "blur": 9,
+            "spread": -2,
+            "alpha": 4,
+            "color": "foreground"
+          },
+          {
+            "x": 0,
+            "y": 13,
+            "blur": 26,
+            "spread": -9,
+            "alpha": 6,
+            "color": "foreground"
+          }
+        ],
+        "lg": [
+          {
+            "x": 0,
+            "y": 2,
+            "blur": 4,
+            "spread": 0,
+            "alpha": 3,
+            "color": "foreground"
+          },
+          {
+            "x": 0,
+            "y": 13,
+            "blur": 26,
+            "spread": -7,
+            "alpha": 6,
+            "color": "foreground"
+          },
+          {
+            "x": 0,
+            "y": 35,
+            "blur": 70,
+            "spread": -18,
+            "alpha": 9,
+            "color": "foreground"
+          }
+        ]
+      }
+    }
+  },
+  "recipes": {
+    "control": {
+      "variants": {
+        "primary": {
+          "elevation": "raised-sm"
+        },
+        "secondary": {
+          "elevation": "flat"
+        },
+        "ghost": {
+          "web": {
+            "elevation": "flat"
+          }
+        },
+        "danger": {
+          "elevation": "flat"
+        }
+      },
+      "density": "regular",
+      "focus": {
+        "kind": "indicator",
+        "width": 2,
+        "offset": 3
+      }
+    }
+  }
+}

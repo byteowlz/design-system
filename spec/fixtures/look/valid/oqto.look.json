@@ -1,0 +1,158 @@
+{
+  "$schema": "../../../look.schema.json",
+  "id": "oqto",
+  "name": "Oqto",
+  "version": 1,
+  "schemes": {
+    "dark": "oqto-dark",
+    "light": "oqto-light"
+  },
+  "identity": {
+    "fonts": {
+      "sans": {
+        "stack": [
+          "JetBrainsMono Nerd Font"
+        ],
+        "native": "JetBrainsMono Nerd Font"
+      },
+      "mono": {
+        "stack": [
+          "JetBrainsMono Nerd Font"
+        ],
+        "native": "JetBrainsMono Nerd Font"
+      }
+    },
+    "radius": 0
+  },
+  "recipes": {
+    "control": {
+      "variants": {
+        "primary": {
+          "elevation": "flat"
+        },
+        "secondary": {
+          "elevation": "flat"
+        },
+        "ghost": {
+          "elevation": "flat"
+        },
+        "danger": {
+          "web": {
+            "elevation": "flat",
+            "focus": {
+              "kind": "ring",
+              "width": 3,
+              "offset": 0,
+              "color": "danger",
+              "alpha": {
+                "dark": 40,
+                "light": 20
+              },
+              "border_to_ring": true
+            }
+          },
+          "desktop": {
+            "elevation": "flat"
+          }
+        },
+        "outline": {
+          "web": {
+            "elevation": {
+              "border": {
+                "width": 1,
+                "color": {
+                  "role": "border",
+                  "alpha": 100
+                }
+              },
+              "shadow": {
+                "dark": [
+                  {
+                    "x": 0,
+                    "y": 2,
+                    "blur": 6,
+                    "spread": 0,
+                    "alpha": 15,
+                    "color": "black"
+                  }
+                ],
+                "light": [
+                  {
+                    "x": 0,
+                    "y": 8,
+                    "blur": 0,
+                    "spread": 0,
+                    "alpha": 0,
+                    "color": "transparent"
+                  }
+                ]
+              }
+            },
+            "focus": {
+              "kind": "ring",
+              "width": 3,
+              "offset": 0,
+              "color": "ring",
+              "alpha": 50,
+              "border_to_ring": {
+                "dark": false,
+                "light": true
+              }
+            }
+          },
+          "desktop": {
+            "elevation": {
+              "border": {
+                "width": 1,
+                "color": {
+                  "role": "input",
+                  "alpha": 100
+                }
+              },
+              "shadow": "none"
+            }
+          }
+        }
+      },
+      "density": {
+        "web": {
+          "sm": {
+            "height": 32,
+            "padding_x": 12,
+            "gap": 6
+          },
+          "md": {
+            "height": 36,
+            "padding_x": 16,
+            "gap": 8
+          }
+        },
+        "desktop": {
+          "xs": {
+            "height": 20,
+            "padding_x": 4,
+            "gap": 4
+          },
+          "sm": {
+            "height": 24,
+            "padding_x": 8,
+            "gap": 4
+          },
+          "md": {
+            "height": 32,
+            "padding_x": 10,
+            "gap": 8
+          }
+        }
+      },
+      "focus": {
+        "kind": "ring",
+        "width": 3,
+        "offset": 0,
+        "color": "ring",
+        "alpha": 50,
+        "border_to_ring": true
+      }
+    }
+  }
+}

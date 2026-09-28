@@ -17,7 +17,7 @@
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { expand, lintHouseLook } from "./house-look-lint.ts";
+import { expand, lintHouseLook, variants } from "./house-look-lint.ts";
 
 type Json = null | boolean | number | string | Json[] | { [k: string]: Json };
 type Schema = { [k: string]: any };
@@ -108,7 +108,7 @@ function validate(v: Json, s: Schema, path: string): string[] {
 function semantic(look: any): string[] {
 	const errs: string[] = [];
 	const control = look.recipes.control;
-	const usesRamp = Object.values<any>(control.variants).some((v) =>
+	const usesRamp = variants(control).some(([, v]) =>
 		[v.elevation, v.hover].some((e) => e && (expand(e).shadow as any)?.ramp));
 	if (usesRamp && !look.identity.shadows) errs.push("identity.shadows: required when an elevation references the ramp");
 	const md = look.identity.radius * 0.75;
