@@ -40,9 +40,11 @@ Effects belong to **Identity** — exactly like the radius dial. The radius *mec
 
 The door above has been opened for structure: [ADR-0004](../docs/adr/0004-look-identity-recipes.md) and [`look.md`](look.md) define a **Look**, whose semantic recipes (v1: `control`) share one mechanism across surfaces. That mechanism covers:
 
-- elevation `flat | hairline | raised(sm|md)` over a structured shadow ramp;
-- density tables;
-- focus `ring | outline | tint | indicator`.
+- elevation as an independent border and structured shadow layers (presets `flat | hairline | raised-sm | raised-md`, compound values allowed);
+- density tables or pinned px;
+- focus `ring | outline | tint | indicator | native`.
+
+House-style taste (a border OR a shadow, no ring focus) is a separate lint over the house Looks, not part of the contract.
 
 Everything above still holds: effect *values* stay per-Look Identity, no portable colour roles are added, and a Look without raised elevation declares no shadows. Web-only effects (backdrop blur, glass) remain outside the cross-surface contract.
 

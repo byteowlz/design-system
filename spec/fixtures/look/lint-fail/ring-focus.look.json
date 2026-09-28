@@ -1,6 +1,6 @@
 {
 	"$schema": "../../../look.schema.json",
-	"id": "hairline-plus-shadow",
+	"id": "ring-focus",
 	"name": "Lumen",
 	"version": 1,
 	"schemes": {
@@ -178,37 +178,25 @@
 		"control": {
 			"variants": {
 				"primary": {
-					"elevation": {
-						"kind": "raised",
-						"level": "sm"
-					}
+					"elevation": "raised-sm"
 				},
 				"secondary": {
-					"elevation": {
-						"kind": "hairline",
-						"color": {
-							"role": "foreground",
-							"alpha": 9
-						},
-						"level": "sm"
-					}
+					"elevation": "flat"
 				},
 				"ghost": {
-					"elevation": {
-						"kind": "flat"
-					}
+					"elevation": "flat"
 				},
 				"danger": {
-					"elevation": {
-						"kind": "flat"
-					}
+					"elevation": "flat"
 				}
 			},
 			"density": "regular",
 			"focus": {
-				"kind": "indicator",
-				"width": 2,
-				"offset": 3
+				"kind": "ring",
+				"width": 3,
+				"offset": 0,
+				"alpha": 50,
+				"border_to_ring": true
 			}
 		}
 	}

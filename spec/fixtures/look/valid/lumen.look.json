@@ -178,25 +178,16 @@
 		"control": {
 			"variants": {
 				"primary": {
-					"elevation": {
-						"kind": "raised",
-						"level": "sm"
-					}
+					"elevation": "raised-sm"
 				},
 				"secondary": {
-					"elevation": {
-						"kind": "flat"
-					}
+					"elevation": "flat"
 				},
 				"ghost": {
-					"elevation": {
-						"kind": "flat"
-					}
+					"elevation": "flat"
 				},
 				"danger": {
-					"elevation": {
-						"kind": "flat"
-					}
+					"elevation": "flat"
 				}
 			},
 			"density": "regular",

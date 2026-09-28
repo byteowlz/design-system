@@ -1,6 +1,6 @@
 {
 	"$schema": "../../../look.schema.json",
-	"id": "inexact-number",
+	"id": "hairline-plus-shadow",
 	"name": "Lumen",
 	"version": 1,
 	"schemes": {
@@ -24,7 +24,7 @@
 				"native": "monospace"
 			}
 		},
-		"radius": 10.3,
+		"radius": 10,
 		"shadows": {
 			"dark": {
 				"sm": [
@@ -188,6 +188,47 @@
 				},
 				"danger": {
 					"elevation": "flat"
+				},
+				"outline": {
+					"elevation": {
+						"border": {
+							"width": 1,
+							"color": {
+								"role": "border",
+								"alpha": 100
+							}
+						},
+						"shadow": {
+							"dark": [
+								{
+									"x": 0,
+									"y": 2,
+									"blur": 6,
+									"spread": 0,
+									"alpha": 15,
+									"color": "black"
+								}
+							],
+							"light": [
+								{
+									"x": 0,
+									"y": 2,
+									"blur": 6,
+									"spread": 0,
+									"alpha": 15,
+									"color": "black"
+								},
+								{
+									"x": 0,
+									"y": 8,
+									"blur": 0,
+									"spread": 0,
+									"alpha": 0,
+									"color": "transparent"
+								}
+							]
+						}
+					}
 				}
 			},
 			"density": "regular",

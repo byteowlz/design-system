@@ -3,18 +3,21 @@
  *
  * Zero-dependency: a small validator for exactly the JSON Schema keywords the Look
  * schema uses, plus the semantic rules JSON Schema cannot express:
- *   - a recipe using raised elevation requires identity.shadows (the ramp)
+ *   - an elevation referencing the ramp requires identity.shadows
  *   - the control radius tier (md = dial * 0.75) must stay below half the control
  *     height on every surface, so compact controls never become pills by accident
  *
  * Every fixture in spec/fixtures/look/valid must pass; every fixture in
  * spec/fixtures/look/invalid must fail, at the path recorded in invalid/EXPECTED.json.
+ * Every fixture in spec/fixtures/look/lint-fail must be ACCEPTED by the schema (the
+ * contract expresses it) and REJECTED by the house-Look lint (house taste).
  *
  * Usage: bun scripts/check-look.ts            (fixtures)
  *        bun scripts/check-look.ts a.json ... (validate given Look files)
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { expand, lintHouseLook } from "./house-look-lint.ts";
 
 type Json = null | boolean | number | string | Json[] | { [k: string]: Json };
 type Schema = { [k: string]: any };
@@ -90,8 +93,9 @@ function validate(v: Json, s: Schema, path: string): string[] {
 function semantic(look: any): string[] {
 	const errs: string[] = [];
 	const control = look.recipes.control;
-	const raised = Object.values(control.variants).some((v: any) => v.elevation.kind === "raised");
-	if (raised && !look.identity.shadows) errs.push("identity.shadows: required when a recipe uses raised elevation");
+	const usesRamp = Object.values<any>(control.variants).some((v) =>
+		[v.elevation, v.hover].some((e) => e && (expand(e).shadow as any)?.ramp));
+	if (usesRamp && !look.identity.shadows) errs.push("identity.shadows: required when an elevation references the ramp");
 	const md = look.identity.radius * 0.75;
 	const heights = typeof control.density === "string"
 		? { web: DENSITY[control.density].web.height, desktop: DENSITY[control.density].desktop.height }
@@ -134,6 +138,13 @@ function main(): number {
 		report(!!want && !!hit, `invalid/${f} is rejected${hit ? ` — ${hit}` : want ? ` (no error mentioning "${want}"; got: ${errs.join("; ") || "none"})` : " (missing from EXPECTED.json)"}`);
 	}
 	for (const f of Object.keys(expected)) if (!invalid.includes(f)) report(false, `EXPECTED.json lists missing fixture ${f}`);
+	for (const f of readdirSync(join(dir, "lint-fail")).filter((n) => n.endsWith(".look.json")).sort()) {
+		const look = JSON.parse(readFileSync(join(dir, "lint-fail", f), "utf8"));
+		const errs = checkLook(look);
+		report(errs.length === 0, `lint-fail/${f} is accepted by the schema${errs.length ? `\n      ${errs.join("\n      ")}` : ""}`);
+		const lint = lintHouseLook(look);
+		report(lint.length > 0, `lint-fail/${f} is rejected by the house lint${lint.length ? ` — ${lint[0]}` : " (lint passed it)"}`);
+	}
 	console.log(`\n${failed ? `${failed} check(s) failed` : "all Look checks passed"}`);
 	return failed ? 1 : 0;
 }

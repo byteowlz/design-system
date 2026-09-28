@@ -179,25 +179,26 @@
 			"variants": {
 				"primary": {
 					"elevation": {
-						"kind": "raised",
-						"level": "sm",
-						"border": 1
+						"border": {
+							"width": 1,
+							"color": {
+								"role": "foreground",
+								"alpha": 12
+							}
+						},
+						"shadow": {
+							"ramp": "sm"
+						}
 					}
 				},
 				"secondary": {
-					"elevation": {
-						"kind": "flat"
-					}
+					"elevation": "flat"
 				},
 				"ghost": {
-					"elevation": {
-						"kind": "flat"
-					}
+					"elevation": "flat"
 				},
 				"danger": {
-					"elevation": {
-						"kind": "flat"
-					}
+					"elevation": "flat"
 				}
 			},
 			"density": "regular",
