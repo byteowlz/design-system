@@ -78,7 +78,7 @@ Density is either a named table or pinned px per surface and tier. The named tab
 
 The tables are **authoring presets**, not baselines. A Look may instead pin `{ web: { md: {height, padding_x, gap}, sm: {…} }, desktop: {…} }`. `md` is required on each surface, and a surface pins only the tiers it uses. The default Look pins, because today's Oqto measures differently on each surface:
 - web `sm` 32 / 12 and `md` 36 / 16;
-- desktop `xs` 20 / 4, `sm` 24 / 8 and `md` 32 / 10.
+- desktop `xs` 20 / 4, `sm` 24 / 8 and `md` 32 / 10. No Oqto Desktop button uses `md` today (17 are `xs`, 6 are `sm`); `md` is the toolkit default, pinned from source.
 
 **Radius versus height:** the control radius tier `md = dial × 0.75` must satisfy `2 × md < height` for every tier on every surface. The smallest tier decides. This keeps compact controls from becoming pills by accident.
 
