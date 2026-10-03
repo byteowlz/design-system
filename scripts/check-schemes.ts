@@ -99,6 +99,17 @@ type Targets = {
 	separation?: { layer: string; on: string; minimum: number }[];
 };
 
+/** Every [ink, surface, minimum] contrast pair a targets file names. */
+function contrastPairs(c: Targets["contrast"]): [string, string, number][] {
+	const groups = [
+		{ inks: c.text.roles, on: c.surfaces, minimum: c.text.minimum },
+		{ inks: c.boundary.roles, on: c.surfaces, minimum: c.boundary.minimum },
+		...c.pairs.map((p) => ({ inks: [p.ink], on: [p.on], minimum: p.minimum })),
+		...(c.groups ?? []),
+	];
+	return groups.flatMap((g) => g.inks.flatMap((ink) => g.on.map((on): [string, string, number] => [ink, on, g.minimum])));
+}
+
 /** Exact target emission and contrast for an authored scheme; returns [ok, message] rows. */
 export function checkTargets(tokens: Record<string, string>, t: Targets): [boolean, string][] {
 	const rows: [boolean, string][] = [];
@@ -107,12 +118,7 @@ export function checkTargets(tokens: Record<string, string>, t: Targets): [boole
 		const got = color(role);
 		rows.push([got === want.toLowerCase(), `${role} = ${want} (emitted ${got || "nothing"})`]);
 	}
-	const pairs: [string, string, number][] = [];
-	for (const group of [t.contrast.text, t.contrast.boundary])
-		for (const ink of group.roles) for (const on of t.contrast.surfaces) pairs.push([ink, on, group.minimum]);
-	for (const p of t.contrast.pairs) pairs.push([p.ink, p.on, p.minimum]);
-	for (const g of t.contrast.groups ?? []) for (const ink of g.inks) for (const on of g.on) pairs.push([ink, on, g.minimum]);
-	for (const [ink, on, minimum] of pairs) {
+	for (const [ink, on, minimum] of contrastPairs(t.contrast)) {
 		const ratio = contrast(color(ink), color(on));
 		rows.push([ratio >= minimum, `${ink} on ${on}: ${ratio.toFixed(2)}:1 >= ${minimum}:1`]);
 	}

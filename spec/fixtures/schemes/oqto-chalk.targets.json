@@ -28,127 +28,40 @@
 		"--terminal-bg": "#D6DBD7"
 	},
 	"contrast": {
-		"surfaces": [
-			"background",
-			"surface-sunken",
-			"surface",
-			"accent",
-			"muted",
-			"--code-bg"
-		],
+		"surfaces": ["background", "surface-sunken", "surface", "accent", "muted", "--code-bg"],
 		"text": {
-			"roles": [
-				"foreground",
-				"muted-foreground"
-			],
+			"roles": ["foreground", "muted-foreground"],
 			"minimum": 4.5
 		},
 		"boundary": {
-			"roles": [
-				"border",
-				"input",
-				"ring"
-			],
+			"roles": ["border", "input", "ring"],
 			"minimum": 3
 		},
 		"pairs": [
-			{
-				"ink": "--primary-foreground",
-				"on": "primary",
-				"minimum": 4.5
-			},
-			{
-				"ink": "--success-foreground",
-				"on": "success",
-				"minimum": 4.5
-			},
-			{
-				"ink": "--warning-foreground",
-				"on": "warning",
-				"minimum": 4.5
-			},
-			{
-				"ink": "--destructive-foreground",
-				"on": "danger",
-				"minimum": 4.5
-			},
-			{
-				"ink": "--info-foreground",
-				"on": "info",
-				"minimum": 4.5
-			},
-			{
-				"ink": "--code-success",
-				"on": "--code-bg",
-				"minimum": 4.5
-			},
-			{
-				"ink": "--code-accent",
-				"on": "--code-bg",
-				"minimum": 4.5
-			},
-			{
-				"ink": "--code-fg",
-				"on": "--code-bg",
-				"minimum": 4.5
-			}
+			{ "ink": "--primary-foreground", "on": "primary", "minimum": 4.5 },
+			{ "ink": "--success-foreground", "on": "success", "minimum": 4.5 },
+			{ "ink": "--warning-foreground", "on": "warning", "minimum": 4.5 },
+			{ "ink": "--destructive-foreground", "on": "danger", "minimum": 4.5 },
+			{ "ink": "--info-foreground", "on": "info", "minimum": 4.5 },
+			{ "ink": "--code-success", "on": "--code-bg", "minimum": 4.5 },
+			{ "ink": "--code-accent", "on": "--code-bg", "minimum": 4.5 },
+			{ "ink": "--code-fg", "on": "--code-bg", "minimum": 4.5 }
 		],
 		"groups": [
 			{
-				"inks": [
-					"danger",
-					"warning",
-					"info",
-					"--base08",
-					"--base09",
-					"--base0A",
-					"--base0C",
-					"--base0D",
-					"--base0E",
-					"--base0F",
-					"--base12",
-					"--base13",
-					"--base14",
-					"--base15",
-					"--base16",
-					"--base17"
-				],
-				"on": [
-					"background",
-					"surface-sunken",
-					"surface",
-					"accent",
-					"muted",
-					"--code-bg"
-				],
+				"inks": ["danger", "warning", "info", "--base08", "--base09", "--base0A", "--base0C", "--base0D", "--base0E", "--base0F", "--base12", "--base13", "--base14", "--base15", "--base16", "--base17"],
+				"on": ["background", "surface-sunken", "surface", "accent", "muted", "--code-bg"],
 				"minimum": 4.5
 			},
 			{
-				"inks": [
-					"primary",
-					"success"
-				],
-				"on": [
-					"surface-sunken",
-					"surface",
-					"accent",
-					"muted",
-					"--code-bg"
-				],
+				"inks": ["primary", "success"],
+				"on": ["surface-sunken", "surface", "accent", "muted", "--code-bg"],
 				"minimum": 4.5
 			}
 		]
 	},
 	"separation": [
-		{
-			"layer": "surface",
-			"on": "background",
-			"minimum": 1.35
-		},
-		{
-			"layer": "surface-sunken",
-			"on": "background",
-			"minimum": 1.15
-		}
+		{ "layer": "surface", "on": "background", "minimum": 1.35 },
+		{ "layer": "surface-sunken", "on": "background", "minimum": 1.15 }
 	]
 }
