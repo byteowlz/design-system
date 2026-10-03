@@ -1,18 +1,18 @@
 {
-	"source": "design-studio artifacts/oqto/chalk-depth/index.html, variant E (Concrete); user review 2026-10-03 (grey containers, more contrast after on-screen review of the white Chalk). Status and syntax hues re-derived darker for the grey surfaces.",
+	"source": "design-studio artifacts/oqto/chalk-depth/index.html, variant F (Slate); user review 2026-10-03 (grey containers, more contrast after on-screen review of the white Chalk). Status and syntax hues re-derived darker for the grey surfaces.",
 	"roles": {
-		"background": "#C2C8C3",
-		"surface-sunken": "#D6DBD7",
-		"surface": "#E7EAE8",
-		"foreground": "#151C18",
-		"muted-foreground": "#47524C",
-		"border": "#5F6A64",
-		"input": "#5F6A64",
-		"primary": "#0F6447",
-		"accent": "#C8DCCF",
-		"muted": "#DCE1DD",
-		"secondary": "#C8DCCF",
-		"ring": "#0F6447"
+		"background": "#B3BAB5",
+		"surface-sunken": "#CBD1CC",
+		"surface": "#DFE3E0",
+		"foreground": "#121915",
+		"muted-foreground": "#414C46",
+		"border": "#58635D",
+		"input": "#58635D",
+		"primary": "#0D5E42",
+		"accent": "#BDD4C6",
+		"muted": "#D4DAD5",
+		"secondary": "#BDD4C6",
+		"ring": "#0D5E42"
 	},
 	"vocabulary": {
 		"--primary-foreground": "#FFFFFF",
@@ -20,12 +20,12 @@
 		"--warning-foreground": "#FFFFFF",
 		"--info-foreground": "#FFFFFF",
 		"--destructive-foreground": "#FFFFFF",
-		"--card": "#E7EAE8",
-		"--popover": "#E7EAE8",
-		"--sidebar": "#D6DBD7",
-		"--code-bg": "#DADFDB",
-		"--code-inline-bg": "#D6DBD7",
-		"--terminal-bg": "#D6DBD7"
+		"--card": "#DFE3E0",
+		"--popover": "#DFE3E0",
+		"--sidebar": "#CBD1CC",
+		"--code-bg": "#D1D7D2",
+		"--code-inline-bg": "#CBD1CC",
+		"--terminal-bg": "#CBD1CC"
 	},
 	"contrast": {
 		"surfaces": [

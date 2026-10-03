@@ -8,7 +8,9 @@
  *     snapshot in spec/fixtures/schemes/<id>.tokens.json, byte for byte;
  *   - when spec/fixtures/schemes/<id>.targets.json exists (an authored scheme with
  *     design targets), every target role and vocabulary value is emitted exactly, and
- *     the listed WCAG contrast pairs hold (opaque sRGB luminance).
+ *     the listed WCAG contrast pairs hold (opaque sRGB luminance), and the surface
+ *     layers stay separable (`separation`: a lighter layer against the canvas it
+ *     sits on, as a WCAG ratio; a near-1:1 pair makes the layers invisible).
  *
  * Snapshots are the no-change guard for mapping work: a mapping change that alters an
  * existing house scheme's output fails here. Write a snapshot only for a NEW scheme
@@ -91,7 +93,10 @@ type Targets = {
 		text: { roles: string[]; minimum: number };
 		boundary: { roles: string[]; minimum: number };
 		pairs: { ink: string; on: string; minimum: number }[];
+		/** Inks checked against a named subset of surfaces (e.g. status hues). */
+		groups?: { inks: string[]; on: string[]; minimum: number }[];
 	};
+	separation?: { layer: string; on: string; minimum: number }[];
 };
 
 /** Exact target emission and contrast for an authored scheme; returns [ok, message] rows. */
@@ -106,9 +111,14 @@ export function checkTargets(tokens: Record<string, string>, t: Targets): [boole
 	for (const group of [t.contrast.text, t.contrast.boundary])
 		for (const ink of group.roles) for (const on of t.contrast.surfaces) pairs.push([ink, on, group.minimum]);
 	for (const p of t.contrast.pairs) pairs.push([p.ink, p.on, p.minimum]);
+	for (const g of t.contrast.groups ?? []) for (const ink of g.inks) for (const on of g.on) pairs.push([ink, on, g.minimum]);
 	for (const [ink, on, minimum] of pairs) {
 		const ratio = contrast(color(ink), color(on));
 		rows.push([ratio >= minimum, `${ink} on ${on}: ${ratio.toFixed(2)}:1 >= ${minimum}:1`]);
+	}
+	for (const s of t.separation ?? []) {
+		const ratio = contrast(color(s.layer), color(s.on));
+		rows.push([ratio >= s.minimum, `separation ${s.layer} / ${s.on}: ${ratio.toFixed(3)}:1 >= ${s.minimum}:1`]);
 	}
 	return rows;
 }

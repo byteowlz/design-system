@@ -57,6 +57,7 @@ export {
 	oqtoDark,
 	oqtoLight,
 	oqtoChalk,
+	oqtoSlate,
 	ember,
 	nordBase16,
 } from "./schemes/index.js";

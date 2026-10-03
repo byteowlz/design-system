@@ -17,7 +17,7 @@ The playground shows every color (24 slots + 15 abstract roles + shadcn pairs), 
 
 ```bash
 bun run check:look      # Look schema fixtures + house-Look lint
-bun run check:schemes   # house schemes: schema, pinned token output, Chalk targets + contrast
+bun run check:schemes   # house schemes: schema, pinned token output, Chalk/Slate targets, contrast, layer separation
 ```
 
 ## What this is
