@@ -5,7 +5,10 @@
  *   - the file satisfies spec/schema.json (the keywords it uses, read from the schema
  *     itself so the two cannot drift);
  *   - its emitted token map (normalizeScheme -> mapSchemeToTokens) equals the pinned
- *     snapshot in spec/fixtures/schemes/<id>.tokens.json, byte for byte.
+ *     snapshot in spec/fixtures/schemes/<id>.tokens.json, byte for byte;
+ *   - when spec/fixtures/schemes/<id>.targets.json exists (an authored scheme with
+ *     design targets), every target role and vocabulary value is emitted exactly, and
+ *     the listed WCAG contrast pairs hold (opaque sRGB luminance).
  *
  * Snapshots are the no-change guard for mapping work: a mapping change that alters an
  * existing house scheme's output fails here. Write a snapshot only for a NEW scheme
@@ -68,6 +71,48 @@ export function tokensJson(scheme: Scheme): string {
 	return `${JSON.stringify(mapSchemeToTokens(normalizeScheme(scheme)), null, "\t")}\n`;
 }
 
+/** WCAG relative luminance of an opaque #rrggbb colour. */
+function luminance(hex: string): number {
+	const c = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16) / 255);
+	const [r, g, b] = c.map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)) as [number, number, number];
+	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+export function contrast(a: string, b: string): number {
+	const [x, y] = [luminance(a), luminance(b)];
+	return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+
+type Targets = {
+	roles: Record<string, string>;
+	vocabulary: Record<string, string>;
+	contrast: {
+		surfaces: string[];
+		text: { roles: string[]; minimum: number };
+		boundary: { roles: string[]; minimum: number };
+		pairs: { ink: string; on: string; minimum: number }[];
+	};
+};
+
+/** Exact target emission and contrast for an authored scheme; returns [ok, message] rows. */
+export function checkTargets(tokens: Record<string, string>, t: Targets): [boolean, string][] {
+	const rows: [boolean, string][] = [];
+	const color = (name: string) => (tokens[name.startsWith("--") ? name : `--${name}`] ?? "").toLowerCase();
+	for (const [role, want] of Object.entries({ ...t.roles, ...t.vocabulary })) {
+		const got = color(role);
+		rows.push([got === want.toLowerCase(), `${role} = ${want} (emitted ${got || "nothing"})`]);
+	}
+	const pairs: [string, string, number][] = [];
+	for (const group of [t.contrast.text, t.contrast.boundary])
+		for (const ink of group.roles) for (const on of t.contrast.surfaces) pairs.push([ink, on, group.minimum]);
+	for (const p of t.contrast.pairs) pairs.push([p.ink, p.on, p.minimum]);
+	for (const [ink, on, minimum] of pairs) {
+		const ratio = contrast(color(ink), color(on));
+		rows.push([ratio >= minimum, `${ink} on ${on}: ${ratio.toFixed(2)}:1 >= ${minimum}:1`]);
+	}
+	return rows;
+}
+
 function main(): number {
 	const args = process.argv.slice(2);
 	if (args[0] === "--write") {
@@ -101,6 +146,12 @@ function main(): number {
 		}
 		const same = readFileSync(path, "utf8") === tokensJson(scheme);
 		report(same, `${scheme.id} token output equals spec/fixtures/schemes/${scheme.id}.tokens.json`);
+		const targetsPath = join(snapshotDir, `${scheme.id}.targets.json`);
+		if (existsSync(targetsPath)) {
+			const targets: Targets = JSON.parse(readFileSync(targetsPath, "utf8"));
+			const tokens = mapSchemeToTokens(normalizeScheme(scheme));
+			for (const [ok, msg] of checkTargets(tokens, targets)) report(ok, `${scheme.id} target ${msg}`);
+		}
 	}
 	console.log(`\n${failed ? `${failed} check(s) failed` : "all scheme checks passed"}`);
 	return failed ? 1 : 0;

@@ -13,52 +13,61 @@
  * @see ../../spec/roles.md
  */
 
-import { ROLE_FOR_SLOT } from "./roles.js";
+import { type AbstractRole, ROLE_FOR_SLOT, roleBindings } from "./roles.js";
 import type { Base24SlotKey, NormalizedScheme, SemanticTokenMap } from "./types.js";
 
+/** Where an emitted var takes its colour: a closed role, or a fixed slot. */
+type Source = Base24SlotKey | { role: AbstractRole };
+const role = (r: AbstractRole): Source => ({ role: r });
+
 /**
- * shadcn concrete surface: paired names. Maps each emitted shadcn var to the
- * slot its *color* comes from; the paired `-foreground` defaults to the default
- * foreground slot (base05) or the surface's complementary foreground, tunable
- * via overrides.
+ * shadcn concrete surface: paired names. Each emitted shadcn var either mirrors
+ * a closed role (and follows that role when a scheme re-binds it, see
+ * spec/roles.md "Per-scheme role binding") or reads a fixed slot. The paired
+ * `-foreground` text colours read slots (tunable via overrides) unless they
+ * are the default text on a surface, which is the `foreground` role.
+ *
+ * With the default bindings every role source resolves to the slot this table
+ * held before role binding existed, so schemes without `roles` emit exactly
+ * what they always did (pinned by spec/fixtures/schemes/).
  */
-const SHADCN_SURFACE: Record<string, Base24SlotKey> = {
+const SHADCN_SURFACE: Record<string, Source> = {
 	// Core surfaces (mirror abstract roles; shadcn consumes these names).
-	"--background": "base00",
-	"--foreground": "base05",
-	"--card": "base01",
-	"--card-foreground": "base05",
-	"--popover": "base01",
-	"--popover-foreground": "base05",
-	"--secondary": "base02",
+	"--background": role("background"),
+	"--foreground": role("foreground"),
+	"--card": role("surface"),
+	"--card-foreground": role("foreground"),
+	"--popover": role("surface"),
+	"--popover-foreground": role("foreground"),
+	"--secondary": role("secondary"),
 	"--secondary-foreground": "base06",
-	"--muted": "base02",
-	"--muted-foreground": "base04",
-	"--accent": "base02",
+	"--muted": role("muted"),
+	"--muted-foreground": role("muted-foreground"),
+	"--accent": role("accent"),
 	"--accent-foreground": "base06",
-	"--destructive": "base08",
+	"--destructive": role("danger"),
 	"--destructive-foreground": "base06",
-	"--border": "base01",
-	"--input": "base01",
-	"--ring": "base0B",
+	"--border": role("border"),
+	"--input": role("input"),
+	"--ring": role("ring"),
 	// Primary + statuses (shadcn lacks success/warning/info; we add them).
-	"--primary": "base0B",
+	"--primary": role("primary"),
 	"--primary-foreground": "base00",
-	"--success": "base0B",
+	"--success": role("success"),
 	"--success-foreground": "base00",
-	"--warning": "base0A",
+	"--warning": role("warning"),
 	"--warning-foreground": "base00",
-	"--info": "base0D",
+	"--info": role("info"),
 	"--info-foreground": "base00",
-	// Sidebar sits on the darkest backgrounds.
-	"--sidebar": "base11",
+	// Sidebar sits on the recessed surface.
+	"--sidebar": role("surface-sunken"),
 	"--sidebar-foreground": "base06",
-	"--sidebar-primary": "base0B",
+	"--sidebar-primary": role("primary"),
 	"--sidebar-primary-foreground": "base11",
-	"--sidebar-accent": "base00",
+	"--sidebar-accent": role("background"),
 	"--sidebar-accent-foreground": "base06",
-	"--sidebar-border": "base01",
-	"--sidebar-ring": "base0B",
+	"--sidebar-border": role("border"),
+	"--sidebar-ring": role("ring"),
 	// Charts: rainbow default so arbitrary community schemes look coherent;
 	// a tool's own scheme pins these via overrides (oqto's are monochrome).
 	"--chart-1": "base0D",
@@ -96,13 +105,15 @@ export function mapSchemeToTokens(scheme: NormalizedScheme): SemanticTokenMap {
 		if (v) tokens[`--${slot}`] = v;
 	}
 
-	// Tier 1: abstract roles (portable).
-	for (const [role, slot] of Object.entries(ROLE_FOR_SLOT)) {
-		tokens[roleVarName(role as keyof typeof ROLE_FOR_SLOT)] = scheme.slots[slot];
+	// Tier 1: abstract roles (portable), through the scheme's role binding.
+	const bindings = roleBindings(scheme);
+	for (const [role, slot] of Object.entries(bindings)) {
+		tokens[roleVarName(role as AbstractRole)] = scheme.slots[slot];
 	}
 
 	// Tier 2: shadcn concrete surface (non-portable framework vocabulary).
-	for (const [cssVar, slot] of Object.entries(SHADCN_SURFACE)) {
+	for (const [cssVar, source] of Object.entries(SHADCN_SURFACE)) {
+		const slot = typeof source === "string" ? source : bindings[source.role];
 		tokens[cssVar] = scheme.slots[slot];
 	}
 

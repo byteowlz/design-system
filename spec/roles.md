@@ -47,7 +47,7 @@ One `surface` role replaces the shadcn-specific `card`/`popover` split — those
 |------|--------|------|
 | `border` | borders, dividers | `base01` |
 | `ring` | focus ring | `base0B` |
-| `input` | input surface | `base01` |
+| `input` | input boundary (the border of text fields; the fill is the surface the input sits on) | `base01` |
 
 ## Total: 16 closed roles
 
@@ -58,6 +58,23 @@ One `surface` role replaces the shadcn-specific `card`/`popover` split — those
 Final closed set (16): `background`, `surface`, `surface-sunken`, `foreground`, `muted-foreground`, `primary`, `secondary`, `muted`, `accent`, `success`, `warning`, `danger`, `info`, `border`, `ring`, `input`.
 
 Multiple roles may bind the same slot (e.g. `primary` and `success` both → `base0B`; `secondary`/`muted`/`accent` all → `base02`). That is correct: hue and role are separate indirections. A scheme that swaps the green slot changes every role bound to it; a tool that re-points `success` → a different slot decouples them.
+
+## Per-scheme role binding
+
+The table above is the **default** binding. A scheme may re-bind any closed role to another slot with an optional `roles` map (`spec/schema.json`), for example:
+
+```json
+"roles": { "border": "base03", "input": "base03", "muted": "base10" }
+```
+
+- Only the listed roles change; every other role keeps its default slot.
+- Values are slots, never raw colours, and no role or slot is added. The closed sets stay closed.
+- Framework vocabulary that mirrors a role (`--card`, `--border`, `--sidebar`, gpui `border`, `input.border`, ...) follows the effective binding, so web and native agree from one field.
+- A scheme without `roles` resolves exactly as before; `spec/fixtures/schemes/*.tokens.json` pins the existing house schemes' output byte for byte (`bun run check:schemes`).
+
+Use it when an authored scheme needs roles apart that share a slot by default: a white raised `surface` with a strong `border`, or a neutral `muted` hover beside a tinted `accent` selection. Decision: [ADR-0005](../docs/adr/0005-per-scheme-role-binding.md).
+
+Text on a filled role (on-primary and friends) stays vocabulary. A scheme pins it through `overrides` with the shadcn pair names (`--primary-foreground`, `--success-foreground`, `--warning-foreground`, `--info-foreground`, `--destructive-foreground`, `--sidebar-primary-foreground`); native adapters honour the same names for their paired tokens.
 
 ## Per-tool / per-framework vocabulary (NON-portable)
 

@@ -35,6 +35,17 @@
       "description": "Exact values for specific semantic variables that win over the role->slot mapping (alpha colors, monochrome charts, etc.). Per-tool vocabulary.",
       "additionalProperties": { "type": "string" }
     },
+    "roles": {
+      "type": "object",
+      "description": "Per-scheme role binding: closed role -> slot, replacing the default binding (spec/roles.md) for the listed roles only. Lets an authored scheme separate roles that share a slot by default (e.g. border/input vs surface, muted vs accent). Slots only, never raw colours; the closed role set is unchanged. See spec/roles.md 'Per-scheme role binding'.",
+      "propertyNames": {
+        "enum": ["foreground","muted-foreground","background","surface","surface-sunken","primary","secondary","muted","accent","success","warning","danger","info","border","ring","input"]
+      },
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["base00","base01","base02","base03","base04","base05","base06","base07","base08","base09","base0A","base0B","base0C","base0D","base0E","base0F","base10","base11","base12","base13","base14","base15","base16","base17"]
+      }
+    },
     "pureBase16": {
       "type": "boolean",
       "default": false,

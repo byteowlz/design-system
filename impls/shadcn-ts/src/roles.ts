@@ -12,7 +12,7 @@
  * @see ../../spec/roles.md
  */
 
-import type { Base24SlotKey } from "./types.js";
+import type { Base24SlotKey, Scheme } from "./types.js";
 
 /** The closed abstract roles. Do not extend in consumer code. */
 export type AbstractRole =
@@ -66,3 +66,12 @@ export const ROLE_FOR_SLOT: Readonly<Record<AbstractRole, Base24SlotKey>> = {
 
 /** The full closed set, for validation / iteration. */
 export const ABSTRACT_ROLES = Object.keys(ROLE_FOR_SLOT) as AbstractRole[];
+
+/**
+ * The effective role -> slot binding for one scheme: the defaults above with
+ * the scheme's own `roles` re-bindings applied (spec/roles.md "Per-scheme
+ * role binding"). A scheme without `roles` resolves to ROLE_FOR_SLOT exactly.
+ */
+export function roleBindings(scheme: Pick<Scheme, "roles">): Record<AbstractRole, Base24SlotKey> {
+	return { ...ROLE_FOR_SLOT, ...scheme.roles };
+}

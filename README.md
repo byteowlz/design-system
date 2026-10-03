@@ -13,6 +13,13 @@ bun run dev        # playground at http://localhost:5174
 
 The playground shows every color (24 slots + 15 abstract roles + shadcn pairs), a live theme switch across house schemes (including a base16-derived scheme), and a radius slider demonstrating the R1 concentric rule.
 
+## Checks
+
+```bash
+bun run check:look      # Look schema fixtures + house-Look lint
+bun run check:schemes   # house schemes: schema, pinned token output, Chalk targets + contrast
+```
+
 ## What this is
 
 - **A published npm package** — `@byteowlz/design-system` (the `impls/shadcn-ts/` build). Consumed like any normal dep: `bun add @byteowlz/design-system`.

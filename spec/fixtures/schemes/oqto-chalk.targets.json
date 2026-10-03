@@ -1,0 +1,24 @@
+{
+	"source": "design-studio docs/proposals/oqto-light/palettes.json, candidate chalk, commit d2fd13c (user-selected direction 2026-10-02)",
+	"roles": {
+		"background": "#F6F7F6",
+		"surface-sunken": "#E9ECEA",
+		"surface": "#FFFFFF",
+		"foreground": "#1D2622",
+		"muted-foreground": "#58645D",
+		"border": "#7A857E",
+		"input": "#7A857E",
+		"primary": "#136B4F",
+		"accent": "#DEEAE3",
+		"muted": "#EDF0EE",
+		"secondary": "#DEEAE3",
+		"ring": "#136B4F"
+	},
+	"vocabulary": { "--primary-foreground": "#FFFFFF" },
+	"contrast": {
+		"surfaces": ["background", "surface-sunken", "surface", "accent", "muted"],
+		"text": { "roles": ["foreground", "muted-foreground"], "minimum": 4.5 },
+		"boundary": { "roles": ["border", "input", "ring"], "minimum": 3 },
+		"pairs": [{ "ink": "--primary-foreground", "on": "primary", "minimum": 4.5 }]
+	}
+}

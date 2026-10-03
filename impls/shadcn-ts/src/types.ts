@@ -16,6 +16,8 @@
 /** Light/dark mode a scheme targets. Drives the `.dark` class + next-themes. */
 export type ThemeMode = "light" | "dark";
 
+import type { AbstractRole } from "./roles.js";
+
 /** Which slot set a scheme fills. */
 export type SchemeSystem = "base16" | "base24";
 
@@ -74,6 +76,13 @@ export interface Scheme {
 	 * mapping (alpha colors, monochrome charts). Per-tool/framework vocabulary.
 	 */
 	overrides?: Partial<Record<string, string>>;
+	/**
+	 * Per-scheme role re-binding: closed role -> slot, replacing the default
+	 * binding for that role only (spec/roles.md "Per-scheme role binding").
+	 * Lets an authored scheme separate roles that share a slot by default
+	 * (e.g. border vs surface) without new roles or raw colours.
+	 */
+	roles?: Partial<Record<AbstractRole, Base24SlotKey>>;
 	/**
 	 * Opt into duplication (alias missing slots) instead of derivation when
 	 * system = "base16". Escape hatch; see spec/base16-policy.md tier 3.

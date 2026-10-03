@@ -44,7 +44,7 @@ export {
 export { darken, lighten, withAlpha } from "./color.js";
 
 // Closed role layer.
-export { ROLE_FOR_SLOT, ABSTRACT_ROLES } from "./roles.js";
+export { ROLE_FOR_SLOT, ABSTRACT_ROLES, roleBindings } from "./roles.js";
 
 // Ecosystem import.
 export { schemeFromTinted, fromTintedYaml } from "./tinted-loader.js";
@@ -56,6 +56,7 @@ export {
 	defaultSchemeForMode,
 	oqtoDark,
 	oqtoLight,
+	oqtoChalk,
 	ember,
 	nordBase16,
 } from "./schemes/index.js";
