@@ -6,7 +6,9 @@
  * playground have something to render. oqto-chalk and oqto-slate are explicit
  * alternative light schemes (grey canvas / panel / raised surfaces through
  * per-scheme role binding; Slate is one step deeper than Chalk); neither is
- * the default light scheme. ember and nord-base16
+ * the default light scheme. oqto-brutal is an explicit alternative dark scheme
+ * (near-black monochrome, layering by hairline dividers; primary is the text
+ * colour); it is not the default dark scheme. ember and nord-base16
  * demonstrate a full base24 scheme and a base16-derived scheme respectively. The 500+
  * community tinted schemes are NOT vendored — load via fromTintedYaml().
  */
@@ -14,6 +16,7 @@
 import type { Scheme, ThemeMode } from "../types.js";
 import emberJson from "./ember.json" with { type: "json" };
 import nordBase16Json from "./nord-base16.json" with { type: "json" };
+import oqtoBrutalJson from "./oqto-brutal.json" with { type: "json" };
 import oqtoChalkJson from "./oqto-chalk.json" with { type: "json" };
 import oqtoDarkJson from "./oqto-dark.json" with { type: "json" };
 import oqtoLightJson from "./oqto-light.json" with { type: "json" };
@@ -25,6 +28,8 @@ export const oqtoLight = oqtoLightJson as Scheme;
 export const oqtoChalk = oqtoChalkJson as Scheme;
 /** Deeper grey sibling of Chalk; not the default. */
 export const oqtoSlate = oqtoSlateJson as Scheme;
+/** Near-black monochrome dark scheme (Pi minimalist brutalism); not the default. */
+export const oqtoBrutal = oqtoBrutalJson as Scheme;
 export const ember = emberJson as Scheme;
 export const nordBase16 = nordBase16Json as Scheme;
 
@@ -34,6 +39,7 @@ export const builtInSchemes: Readonly<Record<string, Scheme>> = {
 	[oqtoLight.id]: oqtoLight,
 	[oqtoChalk.id]: oqtoChalk,
 	[oqtoSlate.id]: oqtoSlate,
+	[oqtoBrutal.id]: oqtoBrutal,
 	[ember.id]: ember,
 	[nordBase16.id]: nordBase16,
 };
@@ -44,6 +50,7 @@ export const builtInSchemeList: ReadonlyArray<Scheme> = [
 	oqtoLight,
 	oqtoChalk,
 	oqtoSlate,
+	oqtoBrutal,
 	ember,
 	nordBase16,
 ];

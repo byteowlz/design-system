@@ -10,7 +10,10 @@
  *     design targets), every target role and vocabulary value is emitted exactly, and
  *     the listed WCAG contrast pairs hold (opaque sRGB luminance), and the surface
  *     layers stay separable (`separation`: a lighter layer against the canvas it
- *     sits on, as a WCAG ratio; a near-1:1 pair makes the layers invisible).
+ *     sits on, as a WCAG ratio; a near-1:1 pair makes the layers invisible). A
+ *     targets file must carry a layering gate: `separation` pairs, or for a scheme
+ *     that deliberately uses one surface, a `dividers` block (with its reason) that
+ *     gates the hairlines carrying the layering instead.
  *
  * Snapshots are the no-change guard for mapping work: a mapping change that alters an
  * existing house scheme's output fails here. Write a snapshot only for a NEW scheme
@@ -97,6 +100,12 @@ type Targets = {
 		groups?: { inks: string[]; on: string[]; minimum: number }[];
 	};
 	separation?: { layer: string; on: string; minimum: number }[];
+	/**
+	 * Per-scheme exemption from `separation` for a deliberately single-surface
+	 * scheme: its layering is drawn by dividers, so the divider inks are gated
+	 * against every surface they separate. The reason is required.
+	 */
+	dividers?: { reason: string; inks: string[]; on: string[]; minimum: number };
 };
 
 /** Every [ink, surface, minimum] contrast pair a targets file names. */
@@ -125,6 +134,21 @@ export function checkTargets(tokens: Record<string, string>, t: Targets): [boole
 	for (const s of t.separation ?? []) {
 		const ratio = contrast(color(s.layer), color(s.on));
 		rows.push([ratio >= s.minimum, `separation ${s.layer} / ${s.on}: ${ratio.toFixed(3)}:1 >= ${s.minimum}:1`]);
+	}
+	rows.push(...checkDividers(t, color));
+	return rows;
+}
+
+/** The layering gate: `separation` pairs, or a reasoned `dividers` exemption. */
+function checkDividers(t: Targets, color: (name: string) => string): [boolean, string][] {
+	const d = t.dividers;
+	if (!d) return t.separation?.length ? [] : [[false, "layering: neither separation pairs nor a dividers exemption"]];
+	const rows: [boolean, string][] = [[d.reason.trim().length > 0, "layering by dividers: exemption states its reason"]];
+	for (const ink of d.inks) {
+		for (const on of d.on) {
+			const ratio = contrast(color(ink), color(on));
+			rows.push([ratio >= d.minimum, `divider ${ink} on ${on}: ${ratio.toFixed(3)}:1 >= ${d.minimum}:1`]);
+		}
 	}
 	return rows;
 }

@@ -47,3 +47,9 @@ On screen the white Chalk was too bright, and its layers did not show: raised su
 The targets files now also carry a `separation` gate. It requires raised/canvas >= 1.35:1 and panel/canvas >= 1.15:1, so the invisible-layer regression cannot recur. `check:schemes` enforces it.
 
 One documented exception: primary `#0F6447` (Slate `#0D5E42`) reaches 4.21:1 (Slate 3.93:1) as text on the canvas. The user chose this hex, and it clears the 3:1 ring and boundary bar on every surface. As text it is gated >= 4.5:1 on every other surface. Hosts should not draw primary-coloured text directly on the canvas.
+
+## Revision 2026-10-04: Oqto Brutal and the dividers exemption
+
+`oqto-brutal` (dark, oqto-desktop trx-zjkm) is a near-black monochrome scheme sampled from the Pi author's "minimalist brutalism" client. It re-binds five roles: `primary` and `ring -> base05` (the text colour, so primary actions are inverted fills with `#151412` on-primary from `overrides`), `border` and `input -> base02` (hairline dividers), and `muted -> base10` (the raised code chip). `success` keeps `base0B`, so status and syntax hues stay separate from the monochrome primary; they are desaturated and gated at 4.5:1 on every surface. It is selectable, not the default dark scheme.
+
+The scheme deliberately uses one surface: canvas, panels and Containers differ by one step at most (surface on canvas 1.075:1). A surface-ratio `separation` gate cannot hold for it, and inventing a low dark threshold would not prove visible layering. Instead a targets file may now carry a `dividers` block: a stated reason plus the divider inks gated against every surface they separate (Brutal: `border`/`input` >= 1.3:1 on canvas, panel and surface). `check:schemes` now requires every targets file to carry a layering gate, either `separation` pairs or `dividers`, so the gate cannot be dropped silently. The sampled divider `#2B2A28` measured 1.284:1 on the surface; it ships as `#2E2D2B` (1.338:1).

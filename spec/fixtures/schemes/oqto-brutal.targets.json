@@ -1,0 +1,71 @@
+{
+	"source": "Pi 'minimalist brutalism' mobile client screenshot (badlogicgames, 2026-10-04), sampled by oqto-desktop trx-zjkm: background #151412 (canvas, panels and composer alike), raised/code chips #21201E, dividers #2B2A28, text #ECEBE9, titles #F2F1ED, muted #A3A09B, faint #75716E. Divider nudged to #2E2D2B (sampled 1.29:1 on the surface, below the 1.3 divider bar). Canvas between Containers one step below the surface (#0B0A09). Status hues desaturated.",
+	"roles": {
+		"background": "#0B0A09",
+		"surface-sunken": "#151412",
+		"surface": "#151412",
+		"foreground": "#ECEBE9",
+		"muted-foreground": "#A3A09B",
+		"border": "#2E2D2B",
+		"input": "#2E2D2B",
+		"primary": "#ECEBE9",
+		"accent": "#2E2D2B",
+		"muted": "#21201E",
+		"secondary": "#2E2D2B",
+		"ring": "#ECEBE9",
+		"success": "#9CBB9F",
+		"warning": "#CDBB86",
+		"danger": "#D39A93",
+		"info": "#9FB0C9"
+	},
+	"vocabulary": {
+		"--primary-foreground": "#151412",
+		"--success-foreground": "#151412",
+		"--warning-foreground": "#151412",
+		"--info-foreground": "#151412",
+		"--destructive-foreground": "#151412",
+		"--sidebar-primary-foreground": "#151412",
+		"--card": "#151412",
+		"--popover": "#151412",
+		"--sidebar": "#151412",
+		"--sidebar-primary": "#ECEBE9",
+		"--code-bg": "#21201E",
+		"--code-inline-bg": "#21201E",
+		"--terminal-bg": "#151412"
+	},
+	"contrast": {
+		"surfaces": ["background", "surface-sunken", "surface", "accent", "muted", "--code-bg"],
+		"text": {
+			"roles": ["foreground", "muted-foreground"],
+			"minimum": 4.5
+		},
+		"boundary": {
+			"roles": ["ring"],
+			"minimum": 3
+		},
+		"pairs": [
+			{ "ink": "--primary-foreground", "on": "primary", "minimum": 4.5 },
+			{ "ink": "--success-foreground", "on": "success", "minimum": 4.5 },
+			{ "ink": "--warning-foreground", "on": "warning", "minimum": 4.5 },
+			{ "ink": "--destructive-foreground", "on": "danger", "minimum": 4.5 },
+			{ "ink": "--info-foreground", "on": "info", "minimum": 4.5 },
+			{ "ink": "--code-success", "on": "--code-bg", "minimum": 4.5 },
+			{ "ink": "--code-accent", "on": "--code-bg", "minimum": 4.5 },
+			{ "ink": "--code-fg", "on": "--code-bg", "minimum": 4.5 },
+			{ "ink": "--base03", "on": "--code-bg", "minimum": 3 }
+		],
+		"groups": [
+			{
+				"inks": ["primary", "success", "danger", "warning", "info", "--base08", "--base09", "--base0A", "--base0B", "--base0C", "--base0D", "--base0E", "--base0F", "--base12", "--base13", "--base14", "--base15", "--base16", "--base17"],
+				"on": ["background", "surface-sunken", "surface", "accent", "muted", "--code-bg"],
+				"minimum": 4.5
+			}
+		]
+	},
+	"dividers": {
+		"reason": "Single-surface scheme by design: canvas, panels and Containers are near-black and differ by one step at most (surface on canvas 1.075:1), so a surface-ratio separation gate cannot hold in the dark. Visible layering comes from hairline dividers, which every Container edge, tab strip and composer draws in the border role; they are gated here instead.",
+		"inks": ["border", "input"],
+		"on": ["background", "surface-sunken", "surface"],
+		"minimum": 1.3
+	}
+}
