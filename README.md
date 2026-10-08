@@ -18,6 +18,15 @@ The playground shows every color (24 slots + 15 abstract roles + shadcn pairs), 
 - **A published npm package** — `@byteowlz/design-system` (the `impls/shadcn-ts/` build). Consumed like any normal dep: `bun add @byteowlz/design-system`.
 - **A target-agnostic spec** — `spec/`. The contract (slots, roles, radius, base16 policy) is independent of rendering target. Future framework impls (`mantine-ts`, `iced-rs`, `gpui-rs`) implement the same spec.
 
+## MyGo native Go adapter
+
+[`impls/mygo-go`](impls/mygo-go/) is the canonical native `ui.View` adapter for
+MyGo v0.3.2: Base24 slots, all 16 closed roles, Base16 widening, R1 radius and
+bounded data-only Omarchy input. It uses pinned Studio source schemes and
+sRGB parity fixtures, not a modified toolkit default palette. Run `just check`
+in that Go module. Source pins, license and native vocabulary exceptions are
+recorded in its README and PROVENANCE.md; app composition is not implied.
+
 ## Scope
 
 - **In:** screen-rendered UIs (web / Electron now; iced / gpui later).
