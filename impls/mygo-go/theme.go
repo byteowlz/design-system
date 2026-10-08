@@ -35,7 +35,11 @@ func Radius(dial float32) (RadiusScale, error) {
 	if dial < 0 || math.IsNaN(float64(dial)) || math.IsInf(float64(dial), 0) {
 		return RadiusScale{}, fmt.Errorf("radius must be finite and nonnegative")
 	}
-	return RadiusScale{dial * 0.5, dial * 0.75, dial, dial * 1.25}, nil
+	scale := RadiusScale{dial * 0.5, dial * 0.75, dial, dial * 1.25}
+	if math.IsInf(float64(scale.XL), 0) {
+		return RadiusScale{}, fmt.Errorf("computed radius tiers must remain finite")
+	}
+	return scale, nil
 }
 
 type Resolved struct {

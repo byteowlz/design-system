@@ -64,7 +64,7 @@ func TestCanonicalStudioParity(t *testing.T) {
 }
 
 func TestRadiusAndBase16Alias(t *testing.T) {
-	for _, dial := range []float32{0, 4, 8, 32} {
+	for _, dial := range []float32{0, 4, 8, 32, math.MaxFloat32 / 2} {
 		got, err := Radius(dial)
 		if err != nil {
 			t.Fatal(err)
@@ -73,7 +73,7 @@ func TestRadiusAndBase16Alias(t *testing.T) {
 			t.Fatal(got)
 		}
 	}
-	for _, dial := range []float32{-1, float32(math.NaN()), float32(math.Inf(1))} {
+	for _, dial := range []float32{-1, float32(math.NaN()), float32(math.Inf(1)), math.MaxFloat32} {
 		if _, err := Radius(dial); err == nil {
 			t.Fatal("accepted invalid radius")
 		}
