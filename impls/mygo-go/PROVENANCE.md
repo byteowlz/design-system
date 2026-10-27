@@ -32,3 +32,21 @@ the audit trail.
 
 No native/window/platform or hardware certification follows from these parity
 tests. MyGo is pinned v0.3.2 (MIT dependency, protected by go.sum).
+
+### Omarchy adapter provenance (spec/omarchy.md)
+
+The Omarchy mapping is promoted to the standard's shared contract:
+`design-system/spec/omarchy.md` + `spec/omarchy-map.json`. `data/omarchy.json` is
+a byte copy of that spec map, so every adapter reads one table.
+
+- Reference copies retained: `reference/templates-omarchy.mjs.txt` (pinned
+  templates webapp source) and `reference/studio-omarchy.py.txt`.
+- The archived `CANONICAL`/`LEGACY_ANSI` tables remain a provenanced subset of
+  the live map; the spec map adds the ordered fallback chains and the
+  `orange`/`yellow` ordering correction. `TestOmarchyInputTableProvenance`
+  asserts that subset relation rather than retyping the table.
+- `testdata/omarchy-corpus.json` is raw `colors.toml` key/values for all 23
+  first-party Omarchy themes at revision
+  `18ecf39440174ae6a5a7e097434d1d4375292375` (v4.0.0.alpha). MIT-licensed
+  upstream (basecamp/omarchy); data only, no code copied.
+- `reference/hashes.json` locks the spec map, corpus and reference bytes.

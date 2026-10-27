@@ -13,15 +13,23 @@ ui.Text(c, "Example").TextColor(resolved.Roles[design.Foreground])
 ```
 
 `ReadScheme` accepts a bounded scheme JSON reader. `Omarchy` accepts bounded,
-flat string TOML, never paths/scripts/execution. Canonical palette fills 24
-reference keys; legacy ANSI fills all 16 keys and leaves unspecified slots
-at the chosen house scheme. This is explicitly a partial legacy overlay.
-Malformed/incomplete input fails before application.
+flat string TOML, never paths/scripts/execution (contract:
+`design-system/spec/omarchy.md`). Canonical palettes fill all 24 slots through an
+ordered fallback chain, so a theme omitting `orange`/`brown` still imports;
+`OmarchyImportData` returns the applied fallbacks as provenance and `Omarchy` is
+the convenience form for callers that do not need them. Legacy ANSI fills only
+the keys ANSI numbering can express, leaves unspecified slots at the chosen house
+scheme and reports the unfilled set — an explicitly partial overlay, never
+labelled base16/base24. Malformed input fails before application; a palette with
+no usable background or foreground is rejected.
 
 `just check`: format, vet, race tests and real Go build.
 Tests resolve every copied Studio scheme and Base16 Nord against observed
 Studio sRGB outputs, all closed roles/native field bindings, R1 at 0/4/8/32,
-pure Base16 aliases, invalid colors and Omarchy no-execution input.
+pure Base16 aliases, invalid colors and Omarchy no-execution input. The Omarchy
+suite additionally asserts the `base09=orange`/`base0A=yellow` ordering trap and
+replays `testdata/omarchy-corpus.json` — all 23 first-party Omarchy themes at the
+pinned revision — requiring 24/24 slots and declared fallbacks, never an error.
 
 ## Native vocabulary and limits
 

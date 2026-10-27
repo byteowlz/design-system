@@ -93,22 +93,146 @@ func TestRadiusAndBase16Alias(t *testing.T) {
 	}
 }
 
+func TestOmarchyOrderingTrap(t *testing.T) {
+	// Omarchy writes red,yellow,orange; base24 is base08=red,base09=orange,
+	// base0A=yellow. A positional converter swaps orange and yellow.
+	imported, err := OmarchyColors(map[string]string{
+		"mode": "dark", "background": "#2e3440", "foreground": "#d8dee9",
+		"red": "#bf616a", "yellow": "#ebcb8b", "orange": "#d5967a",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := imported.Scheme.Slots["base09"]; got != "#d5967a" {
+		t.Fatalf("base09 must be orange, got %s", got)
+	}
+	if got := imported.Scheme.Slots["base0A"]; got != "#ebcb8b" {
+		t.Fatalf("base0A must be yellow, got %s", got)
+	}
+}
+
+func TestOmarchyCorpusImportsTotally(t *testing.T) {
+	// Every first-party theme at the pinned revision must import with all 24
+	// slots filled and fallbacks declared, never an exception.
+	raw, err := os.ReadFile("testdata/omarchy-corpus.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var corpus struct {
+		Themes map[string]map[string]string `json:"themes"`
+	}
+	if err := json.Unmarshal(raw, &corpus); err != nil {
+		t.Fatal(err)
+	}
+	if len(corpus.Themes) < 23 {
+		t.Fatalf("corpus too small: %d themes", len(corpus.Themes))
+	}
+	totalFallbacks := 0
+	for name, colors := range corpus.Themes {
+		imported, err := OmarchyColors(colors)
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		if len(imported.Scheme.Slots) != 24 {
+			t.Fatalf("%s: %d/24 slots", name, len(imported.Scheme.Slots))
+		}
+		for _, slot := range slotOrder {
+			value, ok := imported.Scheme.Slots[slot]
+			if !ok {
+				t.Fatalf("%s: slot %s unfilled", name, slot)
+			}
+			if err := validateOmarchyColor(slot, value); err != nil {
+				t.Fatalf("%s: %v", name, err)
+			}
+		}
+		if imported.Diagnostics.Legacy {
+			t.Fatalf("%s: canonical theme treated as legacy ANSI", name)
+		}
+		// Ordering trap, asserted per theme that ships both keys.
+		if orange, ok := colors["orange"]; ok {
+			if imported.Scheme.Slots["base09"] != orange {
+				t.Fatalf("%s: orange not in base09", name)
+			}
+		}
+		if yellow, ok := colors["yellow"]; ok {
+			if imported.Scheme.Slots["base0A"] != yellow {
+				t.Fatalf("%s: yellow not in base0A", name)
+			}
+		}
+		totalFallbacks += len(imported.Diagnostics.Fallbacks)
+		if mo, ok := colors["mode"]; ok && imported.Diagnostics.Mode != mo {
+			t.Fatalf("%s: mode %s != %s", name, imported.Diagnostics.Mode, mo)
+		}
+	}
+	if totalFallbacks == 0 {
+		t.Fatal("expected declared fallbacks across the corpus")
+	}
+}
+
+func TestOmarchyAbsentKeysUseDeclaredFallback(t *testing.T) {
+	// white, solitude and last-horizon omit orange and brown; before the
+	// fallback table these were a hard error.
+	imported, err := OmarchyColors(map[string]string{
+		"mode": "dark", "background": "#201d19", "foreground": "#e6dfd0",
+		"red": "#944b42", "yellow": "#d7c290",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := imported.Diagnostics.Fallbacks["base09"]; got != "red" {
+		t.Fatalf("base09 should fall back to red, got %q", got)
+	}
+	if got := imported.Diagnostics.Fallbacks["base0F"]; got != "red" {
+		t.Fatalf("base0F should fall back to red, got %q", got)
+	}
+}
+
+func TestOmarchyLegacyAnsiIsPartialOverlay(t *testing.T) {
+	imported, err := OmarchyColors(map[string]string{
+		"color0": "#2e3440", "color7": "#d8dee9", "color4": "#81a1c1",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !imported.Diagnostics.Legacy {
+		t.Fatal("ANSI-only palette not flagged legacy")
+	}
+	if len(imported.Diagnostics.Unfilled) == 0 {
+		t.Fatal("legacy overlay must declare unfilled slots")
+	}
+	// Unfilled slots keep the house scheme rather than being invented.
+	base, _ := Builtin("oqto-dark")
+	if imported.Scheme.Slots["base01"] != base.Slots["base01"] {
+		t.Fatal("legacy overlay invented an unfilled slot")
+	}
+	if imported.Scheme.Slots["base00"] != "#2e3440" {
+		t.Fatal("legacy color0 did not fill base00")
+	}
+}
+
 func TestDataOnlyOmarchy(t *testing.T) {
 	base, _ := Builtin("oqto-dark")
-	var m struct{ Canonical, Legacy map[string]string }
+	var m struct {
+		Canonical  map[string]string   `json:"canonical"`
+		Fallback   map[string][]string `json:"fallback"`
+		LegacyAnsi map[string]string   `json:"legacyAnsi"`
+	}
 	raw, _ := data.ReadFile("data/omarchy.json")
 	json.Unmarshal(raw, &m)
 	resolved, _ := Resolve(base, 0)
-	for _, mapping := range []map[string]string{m.Canonical, m.Legacy} {
+	for _, mapping := range []map[string]string{m.Canonical, m.LegacyAnsi} {
 		colors := map[string]string{}
 		for slot, key := range mapping {
 			colors[key] = resolved.Slots[slot]
 		}
-		scheme, err := OmarchyColors(colors)
+		if mapping == nil {
+			t.Fatal("unreachable")
+		}
+		imported, err := OmarchyColors(colors)
 		if err != nil {
 			t.Fatal(err)
 		}
-		actual, err := Resolve(scheme, 0)
+		actual, err := Resolve(imported.Scheme, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -123,6 +247,13 @@ func TestDataOnlyOmarchy(t *testing.T) {
 			t.Fatal("accepted incomplete/malformed input")
 		}
 	}
+	// A palette with no usable background/foreground is rejected; absent
+	// non-required keys are resolved by declared fallback instead.
+	for _, text := range []string{"red = \"#bf616a\"", "muted = \"#4c566a\"\nmode = \"dark\""} {
+		if _, err := Omarchy(strings.NewReader(text)); err == nil {
+			t.Fatal("accepted a palette with no background or foreground")
+		}
+	}
 	if _, err := parseColor("url(https://invalid.test)"); err == nil {
 		t.Fatal("accepted executable/CSS syntax")
 	}
@@ -134,26 +265,46 @@ func TestDataOnlyOmarchy(t *testing.T) {
 }
 
 func TestOmarchyInputTableProvenance(t *testing.T) {
+	// data/omarchy.json is now a copy of spec/omarchy-map.json, which extends
+	// the archived templates map with ordered fallbacks. The archived canonical
+	// and legacy tables must still be a subset, so the mapping is provenanced
+	// from the pinned source revision rather than retyped.
 	source, err := os.ReadFile("reference/templates-omarchy.mjs.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
-	raw, err := data.ReadFile("data/omarchy.json")
+	m, err := loadOmarchyMap()
 	if err != nil {
 		t.Fatal(err)
 	}
-	var tables map[string]map[string]string
-	if err := json.Unmarshal(raw, &tables); err != nil {
-		t.Fatal(err)
-	}
-	for key, name := range map[string]string{"canonical": "CANONICAL", "legacy": "LEGACY_ANSI"} {
+	for key, name := range map[string]string{"canonical": "CANONICAL", "legacyAnsi": "LEGACY_ANSI"} {
 		block := strings.Split(strings.Split(string(source), "const "+name+" = {")[1], "};")[0]
-		expected := map[string]string{}
-		for _, m := range regexp.MustCompile(`(base[0-9A-F]{2}): "([^"]+)"`).FindAllStringSubmatch(block, -1) {
-			expected[m[1]] = m[2]
+		archived := map[string]string{}
+		for _, match := range regexp.MustCompile(`(base[0-9A-F]{2}): "([^"]+)"`).FindAllStringSubmatch(block, -1) {
+			archived[match[1]] = match[2]
 		}
-		if !reflect.DeepEqual(tables[key], expected) {
-			t.Fatal("Omarchy table differs from archived canonical input map")
+		live := m.Canonical
+		if key == "legacyAnsi" {
+			// The ANSI overlay is intentionally partial: it fills only the
+			// slots ANSI numbering can express.
+			live = m.LegacyAnsi
+			if len(live) != 16 {
+				t.Fatalf("legacyAnsi table should hold 16 keys, got %d", len(live))
+			}
+		} else if len(live) != len(slotOrder) {
+			t.Fatalf("%s table is not total over base24 slots", key)
+		}
+		for slot, want := range archived {
+			if live[slot] != want {
+				t.Fatalf("%s[%s] = %q, archived %q", key, slot, live[slot], want)
+			}
+		}
+	}
+	// Every fallback chain must start with the slot's canonical key.
+	for _, slot := range slotOrder {
+		chain := m.Fallback[slot]
+		if len(chain) == 0 || chain[0] != m.Canonical[slot] {
+			t.Fatalf("fallback chain for %s does not start with its canonical key", slot)
 		}
 	}
 }

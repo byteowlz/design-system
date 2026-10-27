@@ -27,18 +27,52 @@ sRGB parity fixtures, not a modified toolkit default palette. Run `just check`
 in that Go module. Source pins, license and native vocabulary exceptions are
 recorded in its README and PROVENANCE.md; app composition is not implied.
 
+## Omarchy palette bridge
+
+Omarchy is the first **external palette source** adapter, and the one we run. The
+contract is `spec/omarchy.md` (mapping in `spec/omarchy-map.json`), carrying the
+governing decision from Oqto ADR-0040 / `oqto-nq3b`: external theme ecosystems
+are data sources, inert and unexploited.
+
+- **In either direction.** `impls/mygo-go` translates Omarchy `colors.toml` to
+  base24 slots; `scripts/omarchy-to-tinted.py` emits tinted-theming scheme YAML
+  so `tinty` can apply an Omarchy palette to the terminal/TUI stack.
+- **By key name, never by file position.** Omarchy writes `red, yellow, orange`
+  but base24 is `base09=orange, base0A=yellow`; a positional converter silently
+  swaps orange and yellow in every theme.
+- **Total over the corpus.** All 23 first-party Omarchy themes at the pinned
+  revision translate to 24/24 slots, with 6 declared fallback substitutions.
+  Absent keys resolve through an ordered chain and are reported; they are never
+  a hard error.
+- **Same-name palettes are not merged.** No Omarchy/tinted same-name pair is
+  equal (5-16 of 24 slots differ). Identity is
+  `(source, name, variant, digest)`, never `name` alone.
+
+```bash
+uv run --script scripts/test-omarchy-codec.py          # 1223 conformance checks
+scripts/omarchy-to-tinted.py ~/.config/omarchy/themes/nord --out-dir /tmp/schemes
+```
+
 ## Scope
 
-- **In:** screen-rendered UIs (web / Electron now; iced / gpui later).
-- **Out:** TUI / terminal. tinted/tinty + base16-shell already own that domain.
+- **In:** screen-rendered UIs (web / Electron now; iced / gpui later), plus
+  data-only *adapters* for external palette ecosystems. An adapter translates
+  palettes into slots; it never adopts another ecosystem's renderer, templates
+  or style vocabulary.
+- **Out:** TUI / terminal *rendering*. tinted/tinty + base16-shell own that
+  domain, and this repo feeds them rather than replacing them.
 
 ## Layout
 
 ```
 design-system/
 ├── spec/            # THE standard — target-agnostic (slots, roles, radius, base16 policy, schema)
+│   ├── omarchy.md          # external palette source adapter contract
+│   └── omarchy-map.json    # single-source slot mapping every adapter reads
+├── scripts/         # omarchy-to-tinted (colors.toml → tinted YAML) + codec conformance tests
 ├── impls/
 │   ├── shadcn-ts/   # NOW: the published package. shadcn surface + engine + applyScheme + derive-base16
+│   ├── mygo-go/     # NOW: native ui.View adapter + Omarchy colors.toml input
 │   ├── mantine-ts/  # later
 │   ├── iced-rs/     # later
 │   └── gpui-rs/     # later

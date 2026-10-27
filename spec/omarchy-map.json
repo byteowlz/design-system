@@ -1,0 +1,102 @@
+{
+  "$comment": "Machine-readable Omarchy palette adapter map. See spec/omarchy.md. This file is the single source for every adapter: impls/mygo-go/data/omarchy.json, design-studio/studio/adapters/omarchy.py and templates/webapp/scripts/omarchy-theme.mjs are generated/copied from it. Map by key name, never by file position: omarchy writes red,yellow,orange but base24 is base08=red,base09=orange,base0A=yellow.",
+  "version": 1,
+  "source": {
+    "ecosystem": "omarchy",
+    "repo": "https://github.com/basecamp/omarchy",
+    "revision": "18ecf39440174ae6a5a7e097434d1d4375292375",
+    "version": "4.0.0.alpha",
+    "format": "colors.toml",
+    "governing": "oqto docs/adr/0040-oqto-customizations-lua-configurable-ui.md blob b5e60876217559ae4b88be89762798e82572aff0"
+  },
+  "canonical": {
+    "base00": "background",
+    "base01": "lighter_background",
+    "base02": "selection",
+    "base03": "muted",
+    "base04": "dark_foreground",
+    "base05": "foreground",
+    "base06": "light_foreground",
+    "base07": "bright_foreground",
+    "base08": "red",
+    "base09": "orange",
+    "base0A": "yellow",
+    "base0B": "green",
+    "base0C": "cyan",
+    "base0D": "blue",
+    "base0E": "magenta",
+    "base0F": "brown",
+    "base10": "dark_background",
+    "base11": "darker_background",
+    "base12": "bright_red",
+    "base13": "bright_yellow",
+    "base14": "bright_green",
+    "base15": "bright_cyan",
+    "base16": "bright_blue",
+    "base17": "bright_magenta"
+  },
+  "fallback": {
+    "base00": ["background"],
+    "base01": ["lighter_background", "selection", "muted", "background"],
+    "base02": ["selection", "muted", "lighter_background", "background"],
+    "base03": ["muted", "dark_foreground", "light_foreground", "foreground"],
+    "base04": ["dark_foreground", "muted", "light_foreground", "foreground"],
+    "base05": ["foreground"],
+    "base06": ["light_foreground", "foreground", "bright_foreground"],
+    "base07": ["bright_foreground", "light_foreground", "foreground"],
+    "base08": ["red", "bright_red", "foreground"],
+    "base09": ["orange", "red", "yellow", "foreground"],
+    "base0A": ["yellow", "bright_yellow", "orange", "foreground"],
+    "base0B": ["green", "bright_green", "foreground"],
+    "base0C": ["cyan", "bright_cyan", "foreground"],
+    "base0D": ["blue", "bright_blue", "accent", "cyan", "foreground"],
+    "base0E": ["magenta", "bright_magenta", "foreground"],
+    "base0F": ["brown", "red", "foreground"],
+    "base10": ["dark_background", "background"],
+    "base11": ["darker_background", "dark_background", "background"],
+    "base12": ["bright_red", "red", "foreground"],
+    "base13": ["bright_yellow", "yellow", "foreground"],
+    "base14": ["bright_green", "green", "foreground"],
+    "base15": ["bright_cyan", "cyan", "foreground"],
+    "base16": ["bright_blue", "blue", "foreground"],
+    "base17": ["bright_magenta", "magenta", "foreground"]
+  },
+  "legacyAnsi": {
+    "base00": "color0",
+    "base03": "color8",
+    "base05": "color7",
+    "base07": "color15",
+    "base08": "color1",
+    "base0A": "color3",
+    "base0B": "color2",
+    "base0C": "color6",
+    "base0D": "color4",
+    "base0E": "color5",
+    "base12": "color9",
+    "base13": "color11",
+    "base14": "color10",
+    "base15": "color14",
+    "base16": "color12",
+    "base17": "color13"
+  },
+  "metadata": {
+    "accent": "accent",
+    "mode": {
+      "keys": ["mode", "theme_type"],
+      "markerFile": "light.mode",
+      "default": "dark",
+      "allowed": ["dark", "light"]
+    }
+  },
+  "derived": {
+    "cursor": "base07",
+    "selection_background": "base02",
+    "selection_foreground": "base07"
+  },
+  "requiredSlots": ["base00", "base05"],
+  "notes": {
+    "legacyAnsi": "Partial overlay for pre-canonical themes exposing ANSI color0..color15. ANSI numbering must never be relabelled as base16/base24: color0 is not base00 and color8 is bright black, which base16 has no slot for. Unfilled slots keep the consumer house values.",
+    "metadata": "Preserved as explicit metadata, never mapped to a slot and never guessed from one.",
+    "derived": "Outputs of a template, not inputs of a palette. Omarchy defines no cursor palette key."
+  }
+}
